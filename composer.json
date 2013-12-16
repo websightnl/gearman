@@ -13,6 +13,8 @@
     ],
     "require": {
         "php": ">=5.4.0",
+        "ext-gearman": "*",
+        "symfony/console": "2.4.*",
         "react/event-loop": "0.3.*"
     },
     "require-dev": {

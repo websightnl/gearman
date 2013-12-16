@@ -13,6 +13,12 @@ class Config
     /** @var string $dir */
     private static $dir;
 
+    /** @var string host */
+    private static $host = '127.0.0.1';
+
+    /** @var int port */
+    private static $port = 4730;
+
     /**
      * @param string $file
      */
@@ -64,5 +70,37 @@ class Config
             return $path;
         }
         return null;
+    }
+
+    /**
+     * @param string $host
+     */
+    public static function setHost($host)
+    {
+        self::$host = $host;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getHost()
+    {
+        return self::$host;
+    }
+
+    /**
+     * @param int $port
+     */
+    public static function setPort($port)
+    {
+        self::$port = $port;
+    }
+
+    /**
+     * @return int
+     */
+    public static function getPort()
+    {
+        return self::$port;
     }
 }

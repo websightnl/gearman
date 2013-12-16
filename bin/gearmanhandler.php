@@ -1,4 +1,8 @@
+#!/usr/bin/env php
 <?php
+
+use Symfony\Component\Console\Application;
+use GearmanHandler\Command\Start as StartCommand;
 
 if(!function_exists("posix_kill")){
     trigger_error("The function posix_kill was not found. Please ensure POSIX functions are installed");
@@ -42,4 +46,7 @@ if ((!isset($exists) || !file_exists($configFile)) || !is_readable($configFile))
 }
 
 GearmanHandler\Config::setPath($configFile);
-new GearmanHandler\Daemon();
+
+$application = new Application();
+$application->add(new StartCommand);
+$application->run();
