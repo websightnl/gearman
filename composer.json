@@ -1,10 +1,9 @@
 {
-    "name": "phpoffice/phpword",
+    "name": "gavroche/gearman-handler",
     "type": "library",
-    "description": "Gearman Handler",
+    "description": "PHP Daemon for handling and managing Gearman Workers",
     "keywords": ["Gearman", "Workers", "Daemon"],
     "homepage": "https://github.com/gavroche/php-gearman-handler",
-    "type": "library",
     "license": "MIT",
     "authors": [
         {
@@ -13,7 +12,8 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "react/event-loop": "0.3.*"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.28"
@@ -22,5 +22,6 @@
         "psr-0" : {
             "GearmanHandler" : "src/"
         }
-    }
+    },
+    "bin": ["bin/gearmanhandler", "bin/gearmanhandler.php"]
 }
