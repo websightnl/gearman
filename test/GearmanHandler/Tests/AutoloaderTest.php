@@ -1,5 +1,5 @@
 <?php
-namespace Git\Tests;
+namespace GearmanHandler\Tests;
 
 use PHPUnit_Framework_TestCase;
 use GearmanHandler\Autoloader;
@@ -8,7 +8,14 @@ class AutoloaderTest extends PHPUnit_Framework_TestCase
 {
     public function testAutoload()
     {
-        $this->assertNull(Autoloader::autoload('Foo'), 'GearmanHandler\\Autoloader::autoload() is trying to load classes outside of the GearmanHandler namespace');
-        $this->assertTrue(Autoloader::autoload('GearmanHandler\\Daemon'), 'GearmanHandler\\Autoloader::autoload() failed to autoload the GearmanHandler\\Daemon class');
+        $declared = get_declared_classes();
+        $declaredCount = count($declared);
+        Autoloader::autoload('Foo');
+
+        $this->assertEquals($declaredCount, count(get_declared_classes()), 'GearmanHandler\\Autoloader::autoload() is trying to load classes outside of the GearmanHandler namespace');
+
+        Autoloader::autoload('GearmanHandler\\Daemon');
+
+        $this->assertGreaterThan($declaredCount, count(get_declared_classes()), 'GearmanHandler\\Autoloader::autoload() failed to autoload the GearmanHandler\\Daemon class');
     }
 }

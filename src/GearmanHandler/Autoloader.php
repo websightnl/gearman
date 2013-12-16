@@ -8,12 +8,10 @@ namespace GearmanHandler;
  */
 class Autoloader
 {
-    const PACKAGE_NAMESPACE = 'GearmanHandler';
+    const PREFIX = 'GearmanHandler';
 
     /**
      * Register the autoloader
-     *
-     * @return  void
      */
     public static function register()
     {
@@ -23,19 +21,17 @@ class Autoloader
     /**
      * Autoloader
      *
-     * @param   string
-     * @return  mixed
+     * @param string
      */
     public static function autoload($class)
     {
-        if (0 === stripos($class, self::PACKAGE_NAMESPACE)) {
-            $file = str_replace('\\', '/', substr($class, strlen(self::PACKAGE_NAMESPACE)));
+        $prefixLength = strlen(self::PREFIX);
+        if (0 !== strncmp(self::PREFIX, $class, $prefixLength)) {
+            $file = str_replace('\\', '/', substr($class, $prefixLength));
             $file = realpath(__DIR__ . (empty($file) ? '' : '/') . $file . '.php');
-            if (is_file($file)) {
+            if (file_exists($file)) {
                 require_once $file;
-                return true;
             }
         }
-        return null;
     }
 }
