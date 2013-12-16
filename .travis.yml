@@ -1,9 +1,13 @@
 language: php
 php:
-  - 5.4
-  - 5.5
+    - 5.4
+    - 5.5
 
 before_script:
-  ## Composer
-  - curl -s http://getcomposer.org/installer | php
-  - php composer.phar install
+    # gearman
+    - sudo apt-get remove gearman-job-server
+    - sudo apt-get install gearman-job-server libgearman-dev
+    - printf "\n"| pecl install gearman-1.0.3
+    ## Composer
+    - curl -s http://getcomposer.org/installer | php
+    - php composer.phar install
