@@ -62,7 +62,7 @@ class Config
         $config_file = realpath($config_file);
 
         if (null === $config_file || !file_exists($config_file)) {
-            throw new InvalidArgumentException('File does not exists');
+            throw new InvalidArgumentException('Configuration file [' . $config_file . '] does not exists or does not have read permission');
         }
 
         self::$config_file = $config_file;

@@ -6,5 +6,5 @@ PHP Gearman Handler
 Doc will be coming.
 
 ```shell
-php vendor/bin/gearmanhandler -c /path/to/config.php
+php vendor/bin/gearman -c /path/to/config.php
 ```
