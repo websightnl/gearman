@@ -9,12 +9,12 @@ use GearmanHandler\Process;
 use GearmanHandler\Daemon;
 use GearmanHandler\Config;
 
-class Start extends Command
+class Restart extends Command
 {
     protected function configure()
     {
-        $this->setName('start')
-            ->setDescription('Start the gearman workers daemon')
+        $this->setName('restart')
+            ->setDescription('Restart the gearman workers daemon')
             ->addOption('config', 'c', InputOption::VALUE_OPTIONAL);
     }
 
@@ -25,9 +25,7 @@ class Start extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (Process::isRunning()) {
-            $output->writeln('<error>Process is already runnning</error>');
-        }
+        Process::stop();
 
         if ($config = $input->getOption('config')) {
             Config::setPath(realpath($config));

@@ -3,6 +3,8 @@
 
 use Symfony\Component\Console\Application;
 use GearmanHandler\Command\Start as StartCommand;
+use GearmanHandler\Command\Start as StopCommand;
+use GearmanHandler\Command\Start as RestartCommand;
 
 if(!function_exists("posix_kill")){
     trigger_error("The function posix_kill was not found. Please ensure POSIX functions are installed");
@@ -49,4 +51,6 @@ GearmanHandler\Config::setPath($configFile);
 
 $application = new Application();
 $application->add(new StartCommand);
+$application->add(new StopCommand);
+$application->add(new RestartCommand);
 $application->run();
