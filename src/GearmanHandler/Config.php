@@ -1,106 +1,159 @@
 <?php
 namespace GearmanHandler;
 
+use InvalidArgumentException;
+
 /**
  * Class Config
  * @package GearmanHandler
  */
 class Config
 {
-    /** @var string $file */
-    private static $file;
+    /** @var string $config_file */
+    private static $config_file;
 
-    /** @var string $dir */
-    private static $dir;
+    /** @var string $gearman_host */
+    private static $gearman_host = '127.0.0.1';
 
-    /** @var string host */
-    private static $host = '127.0.0.1';
+    /** @var int $gearman_port */
+    private static $gearman_port = 4730;
 
-    /** @var int port */
-    private static $port = 4730;
+    /** @var string $worker_dir */
+    private static $worker_dir;
 
-    /**
-     * @param string $file
-     */
-    public static function setFile($file)
+    /** @var int $worker_lifetime */
+    private static $worker_lifetime;
+
+    /** @var bool $auto_update */
+    private static $auto_update = false;
+
+    private static function setConfigs()
     {
-        self::$file = $file;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getFile()
-    {
-        return self::$file;
-    }
-
-    /**
-     * @param string $dir
-     */
-    public static function setDir($dir)
-    {
-        self::$dir = $dir;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getDir()
-    {
-        return self::$dir;
-    }
-
-    /**
-     * @param string $path
-     */
-    public static function setPath($path)
-    {
-        self::$dir = dirname($path);
-        self::$file = basename($path);
-    }
-
-    /**
-     * @return string
-     */
-    public static function getPath()
-    {
-        $path = self::getDir() . DIRECTORY_SEPARATOR . self::getFile();
-        if ($path !== DIRECTORY_SEPARATOR) {
-            return $path;
+        $configs = require self::$config_file;
+        if (is_array($configs)) {
+            foreach($configs as $key => $value) {
+                switch ($key) {
+                    case 'gearman_host':
+                        self::setGearmanHost($value);
+                        break;
+                    case 'gearman_port':
+                        self::setGearmanPort($value);
+                        break;
+                    case 'worker_dir':
+                        self::setWorkerDir($value);
+                        break;
+                    case 'worker_lifetime':
+                        self::setWorkerLifetime($value);
+                        break;
+                    case 'auto_update':
+                        self::setAutoUpdate($value);
+                        break;
+                }
+            }
         }
-        return null;
     }
 
     /**
-     * @param string $host
+     * @param string $config_file
+     * @throws \InvalidArgumentException
      */
-    public static function setHost($host)
+    public static function setConfigFile($config_file)
     {
-        self::$host = $host;
+        $config_file = realpath($config_file);
+
+        if (null === $config_file || !file_exists($config_file)) {
+            throw new InvalidArgumentException('File does not exists');
+        }
+
+        self::$config_file = $config_file;
+        self::setConfigs();
     }
 
     /**
      * @return string
      */
-    public static function getHost()
+    public static function getConfigFile()
     {
-        return self::$host;
+        return self::$config_file;
     }
 
     /**
-     * @param int $port
+     * @param string $gearman_host
      */
-    public static function setPort($port)
+    public static function setGearmanHost($gearman_host)
     {
-        self::$port = $port;
+        self::$gearman_host = $gearman_host;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getGearmanHost()
+    {
+        return self::$gearman_host;
+    }
+
+    /**
+     * @param int $gearman_port
+     */
+    public static function setGearmanPort($gearman_port)
+    {
+        self::$gearman_port = $gearman_port;
     }
 
     /**
      * @return int
      */
-    public static function getPort()
+    public static function getGearmanPort()
     {
-        return self::$port;
+        return self::$gearman_port;
+    }
+
+    /**
+     * @param boolean $auto_update
+     */
+    public static function setAutoUpdate($auto_update)
+    {
+        self::$auto_update = $auto_update;
+    }
+
+    /**
+     * @return boolean
+     */
+    public static function getAutoUpdate()
+    {
+        return self::$auto_update;
+    }
+
+    /**
+     * @param string $worker_dir
+     */
+    public static function setWorkerDir($worker_dir)
+    {
+        self::$worker_dir = $worker_dir;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getWorkerDir()
+    {
+        return self::$worker_dir;
+    }
+
+    /**
+     * @param int $worker_lifetime
+     */
+    public static function setWorkerLifetime($worker_lifetime)
+    {
+        self::$worker_lifetime = $worker_lifetime;
+    }
+
+    /**
+     * @return int
+     */
+    public static function getWorkerLifetime()
+    {
+        return self::$worker_lifetime;
     }
 }

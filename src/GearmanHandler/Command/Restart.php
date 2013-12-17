@@ -28,7 +28,7 @@ class Restart extends Command
         Process::stop();
 
         if ($config = $input->getOption('config')) {
-            Config::setPath(realpath($config));
+            Config::setConfigFile(realpath($config));
         }
 
         (new Daemon)->run();

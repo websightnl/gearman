@@ -30,7 +30,7 @@ class Start extends Command
         }
 
         if ($config = $input->getOption('config')) {
-            Config::setPath(realpath($config));
+            Config::setConfigFile(realpath($config));
         }
 
         (new Daemon)->run();

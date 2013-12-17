@@ -39,7 +39,7 @@ class Daemon
     public function signalHandlers()
     {
         $root = $this;
-        pcntl_signal(SIGUSR1, function($signo) use ($root) {
+        pcntl_signal(SIGUSR1, function() use ($root) {
             $root->setKill(true);
         });
     }
@@ -47,7 +47,7 @@ class Daemon
     private function createWorker()
     {
         $this->worker = new GearmanWorker();
-        $this->worker->addServer(Config::getHost(), Config::getPort());
+        $this->worker->addServer(Config::getGearmanHost(), Config::getGearmanPort());
     }
 
     private function createLoop()
