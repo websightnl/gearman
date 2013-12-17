@@ -2,19 +2,27 @@
 namespace GearmanHandler\Tests;
 
 use GearmanHandler\Daemon;
-use GearmanHandler\Process;
 use GearmanHandler\Config;
 use PHPUnit_Framework_TestCase;
 
 class WorkerTest extends PHPUnit_Framework_TestCase
 {
-    public function testConfig()
+    public function setUp()
     {
         Config::setConfigFile(__DIR__ . "/__files/config.php");
+    }
 
+    public function testRegisterWorkers()
+    {
         $daemon = new Daemon();
-        $daemon->run();
+        $daemon->addCallback(function(Daemon $daemon) use (&$test) {
+            $test = true;
+            $daemon->setKill(true);
+        });
+        $daemon->run(false);
+        $workers = $daemon->getRegisteredWorkers();
 
-        Process::stop();
+        $this->assertEquals(1, count($workers));
+        $this->assertEquals('\GearmanHandler\Tests\Workers\CreateFile', $workers[0]);
     }
 }

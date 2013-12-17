@@ -4,18 +4,27 @@ namespace GearmanHandler;
 class Process
 {
     const PID_FILE = 'gearmanhandler.pid';
+    const LOCK_FILE = 'gearmanhandler.lock';
 
     /**
      * @return string
      */
-    public static function getPIDFile()
+    public static function getPidFile()
     {
         return sys_get_temp_dir() . DIRECTORY_SEPARATOR . self::PID_FILE;
     }
 
+    /**
+     * @return string
+     */
+    public static function getLockFile()
+    {
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . self::LOCK_FILE;
+    }
+
     public static function stop()
     {
-        $pid = (int)file_get_contents(self::getPIDFile());
+        $pid = (int)file_get_contents(self::getPidFile());
 
         if ($pid) {
             posix_kill($pid, SIGUSR1);
@@ -23,13 +32,19 @@ class Process
     }
 
     /**
-     * @param int $pid
+     * @param string $pid
+     */
+    public static function setPid($pid)
+    {
+        file_put_contents(self::getPidFile(), $pid);
+    }
+
+    /**
      * @return bool|resource
      */
-    public static function lock($pid)
+    public static function lock()
     {
-        $fp = fopen(self::getPIDFile(), "w+");
-        fwrite($fp, $pid);
+        $fp = fopen(self::getLockFile(), "w+");
 
         if (flock($fp, LOCK_EX | LOCK_NB)) {
             return $fp;
@@ -45,8 +60,6 @@ class Process
     {
         flock($fp, LOCK_UN);
         fclose($fp);
-
-        file_put_contents(self::getPIDFile(), "");
     }
 
     /**
@@ -54,7 +67,7 @@ class Process
      */
     public static function isRunning()
     {
-        $fp = fopen(self::getPIDFile(), "w+");
+        $fp = fopen(self::getLockFile(), "w+");
 
         if (!flock($fp, LOCK_SH | LOCK_NB)) {
             fclose($fp);

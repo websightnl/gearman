@@ -5,5 +5,10 @@ use GearmanJob;
 
 interface Job
 {
-    function execute(GearmanJob $job);
+    /**
+     * @return string
+     */
+    static function getName();
+
+    static function execute(GearmanJob $job);
 }

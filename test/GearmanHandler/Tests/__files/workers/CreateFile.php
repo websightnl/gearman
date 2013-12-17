@@ -6,7 +6,12 @@ use GearmanHandler\Job;
 
 class CreateFile implements Job
 {
-    public function execute(GearmanJob $job)
+    public static function getName()
+    {
+        return 'CreateFile';
+    }
+
+    public static function execute(GearmanJob $job)
     {
 
     }
