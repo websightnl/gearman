@@ -14,10 +14,17 @@ class WorkerTest extends PHPUnit_Framework_TestCase
         Config::setConfigFile(__DIR__ . "/__files/config.php");
     }
 
+    public function tearDown()
+    {
+        if (file_exists(__DIR__ . '/__files/worker_test')) {
+            unlink(__DIR__ . '/__files/worker_test');
+        }
+    }
+
     public function testRegisterWorkers()
     {
         $daemon = new Daemon();
-        $daemon->addCallback(function(Daemon $daemon) use (&$test) {
+        $daemon->addCallback(function (Daemon $daemon) use (&$test) {
             $test = true;
             $daemon->setKill(true);
         });
@@ -33,7 +40,7 @@ class WorkerTest extends PHPUnit_Framework_TestCase
         $daemon = new Daemon();
         $daemon->run();
 
-        Worker::background('CreateFile');
+        Worker::execute('CreateFile');
 
         Process::stop();
     }

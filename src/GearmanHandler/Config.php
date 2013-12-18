@@ -31,7 +31,7 @@ class Config
     {
         $configs = require self::$config_file;
         if (is_array($configs)) {
-            foreach($configs as $key => $value) {
+            foreach ($configs as $key => $value) {
                 switch ($key) {
                     case 'gearman_host':
                         self::setGearmanHost($value);

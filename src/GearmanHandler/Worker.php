@@ -36,7 +36,7 @@ class Worker
             self::setClient();
         }
 
-        switch($priority) {
+        switch ($priority) {
             case self::NORMAL:
                 self::$client->doBackground($name, self::serialize($data), $unique);
                 break;
@@ -61,7 +61,7 @@ class Worker
             self::setClient();
         }
 
-        switch($priority) {
+        switch ($priority) {
             case self::NORMAL:
                 self::$client->doNormal($name, self::serialize($data), $unique);
                 break;

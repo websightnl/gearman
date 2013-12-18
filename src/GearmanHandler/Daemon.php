@@ -62,7 +62,7 @@ class Daemon
         } elseif ($fork && isset($pid) && $pid) {
             $wait = true;
 
-            pcntl_signal(SIGUSR2, function() use (&$wait) {
+            pcntl_signal(SIGUSR2, function () use (&$wait) {
                 $wait = false;
             });
 
@@ -93,20 +93,45 @@ class Daemon
         $worker = $this->worker;
         $loop = $this->loop;
 
-        $loop->addPeriodicTimer(.05, function () use ($loop, $worker, $root) {
-            pcntl_signal_dispatch();
+        $worker->setTimeout(10);
+
+        while (@$worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
+            if ($root->getKill()) {
+                break;
+            }
+
             $callbacks = $root->getCallbacks();
             if (count($callbacks)) {
-                foreach($callbacks as $callback) {
+                foreach ($callbacks as $callback) {
                     $callback($root);
                 }
             }
-            if ($root->getKill()) {
-                $loop->stop();
-            }
-        });
 
-        $loop->run();
+            pcntl_signal_dispatch();
+
+            if ($worker->returnCode() === GEARMAN_TIMEOUT) {
+                continue;
+            }
+        }
+        /*
+                    $loop->addPeriodicTimer(.05, function () use ($loop, $worker, $root) {
+                    pcntl_signal_dispatch();
+
+                    while(@$gmworker->work() || $gmworker->returnCode() == GEARMAN_TIMEOUT)
+
+
+                    $callbacks = $root->getCallbacks();
+                    if (count($callbacks)) {
+                        foreach($callbacks as $callback) {
+                            $callback($root);
+                        }
+                    }
+                    if ($root->getKill()) {
+                        $loop->stop();
+                    }
+                });
+
+                $loop->run();*/
     }
 
     /**
@@ -169,11 +194,11 @@ class Daemon
 
             if (strpos($buffer, '{') === false) continue;
 
-            for (;$i<count($tokens);$i++) {
+            for (; $i < count($tokens); $i++) {
                 if ($tokens[$i][0] === T_NAMESPACE) {
-                    for ($j=$i+1;$j<count($tokens); $j++) {
+                    for ($j = $i + 1; $j < count($tokens); $j++) {
                         if ($tokens[$j][0] === T_STRING) {
-                            $namespace .= '\\'.$tokens[$j][1];
+                            $namespace .= '\\' . $tokens[$j][1];
                         } else if ($tokens[$j] === '{' || $tokens[$j] === ';') {
                             break;
                         }
@@ -181,9 +206,9 @@ class Daemon
                 }
 
                 if ($tokens[$i][0] === T_CLASS) {
-                    for ($j=$i+1;$j<count($tokens);$j++) {
+                    for ($j = $i + 1; $j < count($tokens); $j++) {
                         if ($tokens[$j] === '{') {
-                            $class = $tokens[$i+2][1];
+                            $class = $tokens[$i + 2][1];
                         }
                     }
                 }

@@ -1,11 +1,11 @@
 #!/usr/bin/env php
 <?php
 
-if(!function_exists("posix_kill")){
+if (!function_exists("posix_kill")) {
     trigger_error("The function posix_kill was not found. Please ensure POSIX functions are installed");
 }
 
-if(!function_exists("pcntl_fork")){
+if (!function_exists("pcntl_fork")) {
     trigger_error("The function pcntl_fork was not found. Please ensure Process Control functions are installed");
 }
 
