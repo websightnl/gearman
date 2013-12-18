@@ -6,6 +6,8 @@ use React\EventLoop\Factory as Loop;
 use Exception;
 use Closure;
 
+declare(ticks = 1);
+
 class Daemon
 {
     /** @var array $callbacks */
@@ -102,6 +104,8 @@ class Daemon
 
         $worker->setTimeout(10);
 
+        $callbacks = $this->getCallbacks();
+
         while ($worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
             if ($this->getKill()) {
                 exit;
@@ -109,18 +113,17 @@ class Daemon
 
             pcntl_signal_dispatch();
 
-            $callbacks = $this->getCallbacks();
             if (count($callbacks)) {
                 foreach ($callbacks as $callback) {
                     $callback($this);
                 }
             }
 
+            usleep(50000);
+
             if ($worker->returnCode() === GEARMAN_TIMEOUT) {
                 continue;
             }
-
-            usleep(50000);
         }
     }
 
