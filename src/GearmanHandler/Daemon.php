@@ -42,15 +42,34 @@ class Daemon
     {
         if ($fork) {
             $pid = pcntl_fork();
-            Process::setPid($pid);
         }
 
         if (!$fork || (isset($pid) && $pid !== -1 && !$pid)) {
+            Process::setPid(posix_getpid());
+
+            if (isset($pid) && $pid !== -1 && !$pid) {
+                $parantPid = posix_getppid();
+                if ($parantPid) {
+                    posix_kill(posix_getppid(), SIGUSR2);
+                }
+            }
+
             $this->lock = Process::lock();
             $this->signalHandlers();
             $this->createWorker();
             $this->registerWorkers();
             $this->createLoop();
+        } elseif ($fork && isset($pid) && $pid) {
+            $wait = true;
+
+            pcntl_signal(SIGUSR2, function() use (&$wait) {
+                $wait = false;
+            });
+
+            while ($wait) {
+                pcntl_waitpid($pid, $status, WNOHANG);
+                pcntl_signal_dispatch();
+            }
         }
     }
 
