@@ -13,7 +13,8 @@ File ``/path/to/config.php``
 return [
     'gearman_host' => '127.0.0.1',
     'gearman_port' => 4730,
-    'worker_dir' => '/path/to/workers'
+    'worker_dir' => '/path/to/workers',
+    'user' => 'apache'
 ];
 ```
 

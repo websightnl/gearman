@@ -40,6 +40,15 @@ class Daemon
 
     public function run($fork = true)
     {
+        $user = Config::getUser();
+        if ($user) {
+            $user = posix_getpwnam($user);
+            posix_setuid($user['uid']);
+            if (posix_geteuid() != $user['uid']) {
+                throw new Exception("Unable to change user to {$user['uid']}");
+            }
+        }
+
         if ($fork) {
             $pid = pcntl_fork();
         }

@@ -27,6 +27,9 @@ class Config
     /** @var bool $auto_update */
     private static $auto_update = false;
 
+    /** @var string $user */
+    private static $user;
+
     private static function setConfigs()
     {
         $configs = require self::$config_file;
@@ -47,6 +50,9 @@ class Config
                         break;
                     case 'auto_update':
                         self::setAutoUpdate($value);
+                        break;
+                    case 'user':
+                        self::setUser($value);
                         break;
                 }
             }
@@ -155,5 +161,21 @@ class Config
     public static function getWorkerLifetime()
     {
         return self::$worker_lifetime;
+    }
+
+    /**
+     * @param string $user
+     */
+    public static function setUser($user)
+    {
+        self::$user = $user;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUser()
+    {
+        return self::$user;
     }
 }
