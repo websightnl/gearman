@@ -25,12 +25,20 @@ class Restart extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->write('Stoping gearman-handler: ');
+
         Process::stop();
+
+        $output->write('OK', true);
+
+        $output->write('Starting gearman-handler: ');
 
         if ($config = $input->getOption('config')) {
             Config::setConfigFile(realpath($config));
         }
 
         (new Daemon)->run();
+
+        $output->write('OK', true);
     }
 }

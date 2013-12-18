@@ -12,8 +12,8 @@ if (!function_exists("pcntl_fork")) {
 
 use Symfony\Component\Console\Application;
 use GearmanHandler\Command\Start as StartCommand;
-use GearmanHandler\Command\Start as StopCommand;
-use GearmanHandler\Command\Start as RestartCommand;
+use GearmanHandler\Command\Stop as StopCommand;
+use GearmanHandler\Command\Restart as RestartCommand;
 
 $application = new Application();
 $application->add(new StartCommand);

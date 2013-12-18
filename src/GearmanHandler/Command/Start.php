@@ -27,12 +27,17 @@ class Start extends Command
     {
         if (Process::isRunning()) {
             $output->writeln('<error>Process is already runnning</error>');
+            return;
         }
 
         if ($config = $input->getOption('config')) {
             Config::setConfigFile(realpath($config));
         }
 
+        $output->write('Starting gearman-handler: ');
+
         (new Daemon)->run();
+
+        $output->write('OK', true);
     }
 }

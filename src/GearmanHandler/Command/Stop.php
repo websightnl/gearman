@@ -21,6 +21,10 @@ class Stop extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->write('Stoping gearman-handler: ');
+
         Process::stop();
+
+        $output->write('OK', true);
     }
 }
