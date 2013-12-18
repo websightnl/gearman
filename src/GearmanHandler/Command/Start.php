@@ -25,8 +25,10 @@ class Start extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->write('Starting gearman-handler: ');
+
         if (Process::isRunning()) {
-            $output->writeln('<error>Process is already runnning</error>');
+            $output->write('[ <error>Failed: Process is already runnning</error> ]', true);
             return;
         }
 
@@ -34,10 +36,8 @@ class Start extends Command
             Config::setConfigFile(realpath($config));
         }
 
-        $output->write('Starting gearman-handler: ');
-
         (new Daemon)->run();
 
-        $output->write('OK', true);
+        $output->write('[ <fg=green>OK</fg=green> ]', true);
     }
 }

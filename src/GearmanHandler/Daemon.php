@@ -119,7 +119,7 @@ class Daemon
             if ($worker->returnCode() === GEARMAN_TIMEOUT) {
                 continue;
             }
-            
+
             usleep(50000);
         }
     }

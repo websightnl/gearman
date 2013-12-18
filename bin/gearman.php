@@ -1,11 +1,11 @@
 <?php
 
 if (!function_exists("posix_kill")) {
-    trigger_error("The function posix_kill was not found. Please ensure POSIX functions are installed");
+    trigger_error("The function posix_kill was not found. Please ensure POSIX functions are installed", E_USER_ERROR);
 }
 
 if (!function_exists("pcntl_fork")) {
-    trigger_error("The function pcntl_fork was not found. Please ensure Process Control functions are installed");
+    trigger_error("The function pcntl_fork was not found. Please ensure Process Control functions are installed", E_USER_ERROR);
 }
 
 (@include_once __DIR__ . '/../vendor/autoload.php') || @include_once __DIR__ . '/../../../autoload.php';

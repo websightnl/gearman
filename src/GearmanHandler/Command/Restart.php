@@ -29,7 +29,7 @@ class Restart extends Command
 
         Process::stop();
 
-        $output->write('OK', true);
+        $output->write('[ <fg=green>OK</fg=green> ]', true);
 
         $output->write('Starting gearman-handler: ');
 
@@ -39,6 +39,6 @@ class Restart extends Command
 
         (new Daemon)->run();
 
-        $output->write('OK', true);
+        $output->write('[ <fg=green>OK</fg=green> ]', true);
     }
 }

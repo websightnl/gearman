@@ -25,6 +25,6 @@ class Stop extends Command
 
         Process::stop();
 
-        $output->write('OK', true);
+        $output->write('[ <fg=green>OK</fg=green> ]', true);
     }
 }
