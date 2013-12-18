@@ -38,7 +38,7 @@ class WorkerExample implements \GearmanHandler\Job
 ## Start workers daemon
 
 ```shell
-php vendor/bin/gearman -c /path/to/config.php
+php vendor/bin/gearman start -c /path/to/config.php
 ```
 
 ## Worker usage
