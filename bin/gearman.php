@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 if (!function_exists("posix_kill")) {

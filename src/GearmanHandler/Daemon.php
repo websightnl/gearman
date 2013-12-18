@@ -89,49 +89,28 @@ class Daemon
 
     private function createLoop()
     {
-        $root = $this;
         $worker = $this->worker;
-        $loop = $this->loop;
 
         $worker->setTimeout(10);
 
-        while (@$worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
-            if ($root->getKill()) {
-                break;
-            }
-
-            $callbacks = $root->getCallbacks();
-            if (count($callbacks)) {
-                foreach ($callbacks as $callback) {
-                    $callback($root);
-                }
+        while ($worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
+            if ($this->getKill()) {
+                exit;
             }
 
             pcntl_signal_dispatch();
+
+            $callbacks = $this->getCallbacks();
+            if (count($callbacks)) {
+                foreach ($callbacks as $callback) {
+                    $callback($this);
+                }
+            }
 
             if ($worker->returnCode() === GEARMAN_TIMEOUT) {
                 continue;
             }
         }
-        /*
-                    $loop->addPeriodicTimer(.05, function () use ($loop, $worker, $root) {
-                    pcntl_signal_dispatch();
-
-                    while(@$gmworker->work() || $gmworker->returnCode() == GEARMAN_TIMEOUT)
-
-
-                    $callbacks = $root->getCallbacks();
-                    if (count($callbacks)) {
-                        foreach($callbacks as $callback) {
-                            $callback($root);
-                        }
-                    }
-                    if ($root->getKill()) {
-                        $loop->stop();
-                    }
-                });
-
-                $loop->run();*/
     }
 
     /**
