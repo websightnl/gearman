@@ -147,7 +147,7 @@ class Daemon
 
         if (is_dir($dir)) {
             foreach (scandir($dir) as $file) {
-                if ($file !== '.' && $file !== '..' && is_dir($file)) {
+                if ($file !== '.' && $file !== '..' && is_dir($dir . DIRECTORY_SEPARATOR . $file)) {
                     $file = $dir . DIRECTORY_SEPARATOR . $file;
                     $this->registerWorkers($file);
                 } elseif (strtolower(substr($file, -4)) === '.php') {
