@@ -42,9 +42,19 @@ class Daemon
 
     public function run($fork = true)
     {
+        $pidFile = Process::getPidFile();
+        $lockFile = Process::getLockFile();
+        if (is_file($pidFile) && is_readable($pidFile)) {
+            unlink($pidFile);
+        }
+        if (is_file($lockFile) && is_readable($pidFile)) {
+            unlink($lockFile);
+        }
+
         $user = Config::getUser();
         if ($user) {
             $user = posix_getpwnam($user);
+            posix_setgid($user['gid']);
             posix_setuid($user['uid']);
             if (posix_geteuid() != $user['uid']) {
                 throw new Exception("Unable to change user to {$user['uid']}");
