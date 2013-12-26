@@ -47,7 +47,7 @@ class Daemon
         if (is_file($pidFile) && is_readable($pidFile)) {
             unlink($pidFile);
         }
-        if (is_file($lockFile) && is_readable($pidFile)) {
+        if (is_file($lockFile) && is_readable($lockFile)) {
             unlink($lockFile);
         }
 
