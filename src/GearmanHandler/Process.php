@@ -29,6 +29,10 @@ class Process
         if ($pid) {
             posix_kill($pid, SIGUSR1);
         }
+
+        if (file_exists($file = self::getPidFile())) {
+            unlink($file);
+        }
     }
 
     /**
@@ -60,6 +64,10 @@ class Process
     {
         flock($fp, LOCK_UN);
         fclose($fp);
+
+        if (file_exists($file = self::getLockFile())) {
+            unlink($file);
+        }
     }
 
     /**
