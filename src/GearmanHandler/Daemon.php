@@ -44,10 +44,10 @@ class Daemon
     {
         $pidFile = Process::getPidFile();
         $lockFile = Process::getLockFile();
-        if (is_file($pidFile) && is_readable($pidFile)) {
+        if (is_file($pidFile) && is_writable($pidFile)) {
             unlink($pidFile);
         }
-        if (is_file($lockFile) && is_readable($lockFile)) {
+        if (is_file($lockFile) && is_writable($lockFile)) {
             unlink($lockFile);
         }
 

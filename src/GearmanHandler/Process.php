@@ -32,7 +32,7 @@ class Process
             posix_kill($pid, SIGUSR1);
         }
 
-        if (file_exists($file = self::getPidFile())) {
+        if (file_exists($file = self::getPidFile()) && is_writable($file)) {
             unlink($file);
         }
     }
@@ -67,7 +67,7 @@ class Process
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        if (file_exists($file = self::getLockFile())) {
+        if (file_exists($file = self::getLockFile()) && is_writable($file)) {
             unlink($file);
         }
     }
