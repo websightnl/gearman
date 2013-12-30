@@ -24,9 +24,11 @@ class Process
 
     public static function stop()
     {
-        $pid = (int)file_get_contents(self::getPidFile());
+        if (file_exists($file = self::getPidFile())) {
+            $pid = (int)file_get_contents(self::getPidFile());
+        }
 
-        if ($pid) {
+        if (isset($pid) && $pid) {
             posix_kill($pid, SIGUSR1);
         }
 
