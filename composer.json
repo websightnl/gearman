@@ -1,14 +1,14 @@
 {
-    "name": "gavroche/gearman-handler",
+    "name": "gabrielbull/gearman-handler",
     "type": "library",
     "description": "PHP Daemon for handling and managing Gearman Workers",
     "keywords": ["Gearman", "Workers", "Daemon"],
-    "homepage": "https://github.com/gavroche/php-gearman-handler",
+    "homepage": "https://github.com/gabrielbull/php-gearman-handler",
     "license": "MIT",
     "authors": [
         {
             "name": "Gabriel Bull",
-            "email": "gavroche.bull@gmail.com"
+            "email": "me@gabrielbull.com"
         }
     ],
     "require": {

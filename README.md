@@ -1,7 +1,7 @@
 PHP Gearman Handler
 ===================
 
-[![Build Status](https://travis-ci.org/gavroche/php-gearman-handler.png)](https://travis-ci.org/gavroche/php-gearman-handler)
+[![Build Status](https://travis-ci.org/gabrielbull/php-gearman-handler.png)](https://travis-ci.org/gabrielbull/php-gearman-handler)
 
 Better doc will be coming.
 
