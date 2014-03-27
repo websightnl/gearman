@@ -18,17 +18,17 @@ return [
 ];
 ```
 
-## Create worker
+## Create job
 
 ```php
-class WorkerExample implements \GearmanHandler\Job
+class JobExample implements \GearmanHandler\JobInterface
 {
-    public static function getName()
+    public function getName()
     {
-        return 'WorkerExample';
+        return 'JobExample';
     }
 
-    public static function execute(\GearmanJob $job)
+    public function execute(\GearmanJob $job)
     {
         // To something
     }
@@ -44,6 +44,11 @@ php vendor/bin/gearman start -c /path/to/config.php
 ## Worker usage
 
 ```php
-GearmanHandler\Config::setConfigFile('/path/to/config.php');
-GearmanHandler\Worker::execute('WorkerName', ['data' => 'value']);
+$config = new GearmanHandler\Config([
+    'gearman_host' => '127.0.0.1',
+    'gearman_port' => 4730,
+    'jobs_dir' => __DIR__ . '/Jobs'
+]);
+$worker = new GearmanHandler\Worker($config);
+$worker->execute('JobExample', ['data' => 'value']);
 ```
