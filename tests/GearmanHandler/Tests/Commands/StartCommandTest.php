@@ -1,5 +1,5 @@
 <?php
-namespace GearmanHandler\Tests;
+namespace GearmanHandler\Tests\Commands;
 
 use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Application;

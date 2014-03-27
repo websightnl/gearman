@@ -1,58 +1,86 @@
 <?php
 namespace GearmanHandler;
 
-use InvalidArgumentException;
-
 /**
  * Class Config
  * @package GearmanHandler
  */
 class Config
 {
-    /** @var string $config_file */
-    private static $config_file;
+    /**
+     * @var string
+     */
+    private $gearmanHost = '127.0.0.1';
 
-    /** @var string $gearman_host */
-    private static $gearman_host = '127.0.0.1';
+    /**
+     * @var int
+     */
+    private $gearmanPort = 4730;
 
-    /** @var int $gearman_port */
-    private static $gearman_port = 4730;
+    /**
+     * @var string
+     */
+    private $workerDir;
 
-    /** @var string $worker_dir */
-    private static $worker_dir;
+    /**
+     * @var int
+     */
+    private $workerLifetime;
 
-    /** @var int $worker_lifetime */
-    private static $worker_lifetime;
+    /**
+     * @var bool
+     */
+    private $autoUpdate = false;
 
-    /** @var bool $auto_update */
-    private static $auto_update = false;
+    /**
+     * @var string
+     */
+    private $user;
 
-    /** @var string $user */
-    private static $user;
-
-    private static function setConfigs()
+    /**
+     * @param array $params
+     */
+    public function __construct(array $params = null)
     {
-        $configs = require self::$config_file;
-        if (is_array($configs)) {
-            foreach ($configs as $key => $value) {
+        if (null !== $params) {
+            $this->set($params);
+        }
+    }
+
+    /**
+     * @param array|string $params
+     * @param null|mixed $value
+     */
+    public function set($params, $value = null)
+    {
+        if (!is_array($params)) {
+            $params = array($params => $value);
+        }
+        if (is_array($params)) {
+            foreach ($params as $key => $value) {
                 switch ($key) {
+                    case 'gearmanHost':
                     case 'gearman_host':
-                        self::setGearmanHost($value);
+                        $this->setGearmanHost($value);
                         break;
+                    case 'gearmanPort':
                     case 'gearman_port':
-                        self::setGearmanPort($value);
+                        $this->setGearmanPort($value);
                         break;
+                    case 'workerDir':
                     case 'worker_dir':
-                        self::setWorkerDir($value);
+                        $this->setWorkerDir($value);
                         break;
+                    case 'workerLifetime':
                     case 'worker_lifetime':
-                        self::setWorkerLifetime($value);
+                        $this->setWorkerLifetime($value);
                         break;
+                    case 'autoUpdate':
                     case 'auto_update':
-                        self::setAutoUpdate($value);
+                        $this->setAutoUpdate($value);
                         break;
                     case 'user':
-                        self::setUser($value);
+                        $this->setUser($value);
                         break;
                 }
             }
@@ -60,122 +88,144 @@ class Config
     }
 
     /**
-     * @param string $config_file
-     * @throws \InvalidArgumentException
+     * @param string $key
+     * @return null|mixed
      */
-    public static function setConfigFile($config_file)
+    public function get($key)
     {
-        $config_file = realpath($config_file);
-
-        if (null === $config_file || !file_exists($config_file)) {
-            throw new InvalidArgumentException('Configuration file [' . $config_file . '] does not exists or does not have read permission');
+        switch ($key) {
+            case 'gearmanHost':
+            case 'gearman_host':
+                return $this->getGearmanHost();
+                break;
+            case 'gearmanPort':
+            case 'gearman_port':
+                return $this->getGearmanPort();
+                break;
+            case 'workerDir':
+            case 'worker_dir':
+                return $this->getWorkerDir();
+                break;
+            case 'workerLifetime':
+            case 'worker_lifetime':
+                return $this->getWorkerLifetime();
+                break;
+            case 'autoUpdate':
+            case 'auto_update':
+                return $this->getAutoUpdate();
+                break;
+            case 'user':
+                return $this->getUser();
+                break;
         }
+        return null;
+    }
 
-        self::$config_file = $config_file;
-        self::setConfigs();
+    /**
+     * @param string $gearmanHost
+     * @return $this
+     */
+    public function setGearmanHost($gearmanHost)
+    {
+        $this->gearmanHost = $gearmanHost;
+        return $this;
     }
 
     /**
      * @return string
      */
-    public static function getConfigFile()
+    public function getGearmanHost()
     {
-        return self::$config_file;
+        return $this->gearmanHost;
     }
 
     /**
-     * @param string $gearman_host
+     * @param int $gearmanPort
+     * @return $this
      */
-    public static function setGearmanHost($gearman_host)
+    public function setGearmanPort($gearmanPort)
     {
-        self::$gearman_host = $gearman_host;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getGearmanHost()
-    {
-        return self::$gearman_host;
-    }
-
-    /**
-     * @param int $gearman_port
-     */
-    public static function setGearmanPort($gearman_port)
-    {
-        self::$gearman_port = $gearman_port;
+        $this->gearmanPort = $gearmanPort;
+        return $this;
     }
 
     /**
      * @return int
      */
-    public static function getGearmanPort()
+    public function getGearmanPort()
     {
-        return self::$gearman_port;
+        return $this->gearmanPort;
     }
 
     /**
-     * @param boolean $auto_update
+     * @param bool $autoUpdate
+     * @return $this
      */
-    public static function setAutoUpdate($auto_update)
+    public function setAutoUpdate($autoUpdate)
     {
-        self::$auto_update = $auto_update;
+        $this->autoUpdate = $autoUpdate;
+        return $this;
     }
 
     /**
      * @return boolean
      */
-    public static function getAutoUpdate()
+    public function getAutoUpdate()
     {
-        return self::$auto_update;
+        return $this->autoUpdate;
     }
 
     /**
-     * @param string $worker_dir
+     * @param string $workerDir
+     * @return $this
      */
-    public static function setWorkerDir($worker_dir)
+    public function setWorkerDir($workerDir)
     {
-        self::$worker_dir = $worker_dir;
+        $this->workerDir = $workerDir;
+        return $this;
     }
 
     /**
      * @return string
      */
-    public static function getWorkerDir()
+    public function getWorkerDir()
     {
-        return self::$worker_dir;
+        return $this->workerDir;
     }
 
     /**
-     * @param int $worker_lifetime
+     * @param int $workerLifetime
+     * @return $this
      */
-    public static function setWorkerLifetime($worker_lifetime)
+    public function setWorkerLifetime($workerLifetime)
     {
-        self::$worker_lifetime = $worker_lifetime;
+        $this->workerLifetime = $workerLifetime;
+        return $this;
     }
 
     /**
      * @return int
      */
-    public static function getWorkerLifetime()
+    public function getWorkerLifetime()
     {
-        return self::$worker_lifetime;
+        return $this->workerLifetime;
     }
 
     /**
      * @param string $user
+     * @return $this
      */
-    public static function setUser($user)
+    public function setUser($user)
     {
-        self::$user = $user;
+        $this->user = $user;
+        return $this;
     }
 
     /**
      * @return string
      */
-    public static function getUser()
+    public function getUser()
     {
-        return self::$user;
+        return $this->user;
     }
 }
