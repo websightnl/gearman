@@ -1,5 +1,5 @@
 <?php
-namespace GearmanHandler\Tests\Workers;
+namespace GearmanHandler\Tests\Jobs;
 
 use GearmanHandler\JobInterface;
 use GearmanJob;

@@ -8,16 +8,21 @@ use GearmanHandler\Config;
 
 class DaemonTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Config
+     */
+    private $config;
+
     public function setUp()
     {
-        Config::setConfigFile(__DIR__ . "/__files/config.php");
+        $this->config = new Config(require __DIR__ . "/_files/config.php");
     }
 
     public function testProcessGetsStarted()
     {
         $test = false;
 
-        $daemon = new Daemon();
+        $daemon = new Daemon($this->config);
         $daemon->addCallback(function (Daemon $daemon) use (&$test) {
             $test = true;
             $daemon->setKill(true);
@@ -29,12 +34,14 @@ class DaemonTest extends PHPUnit_Framework_TestCase
 
     public function testDaemon()
     {
-        $daemon = new Daemon();
+        $process = new Process($this->config);
+        $daemon = new Daemon($this->config, $process);
         $daemon->run();
 
-        $test = Process::isRunning();
-        Process::stop();
+        $test = $process->isRunning();
 
         $this->assertTrue($test);
+
+        $process->stop();
     }
 }

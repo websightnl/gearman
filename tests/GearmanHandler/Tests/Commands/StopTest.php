@@ -5,8 +5,8 @@ use PHPUnit_Framework_TestCase;
 
 class StopTest extends PHPUnit_Framework_TestCase
 {
-    public function testFalseIsTrue()
+    public function testStop()
     {
-        $this->assertTrue(false);
+        // TODO
     }
 }

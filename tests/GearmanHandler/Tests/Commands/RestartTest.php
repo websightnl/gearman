@@ -5,8 +5,8 @@ use PHPUnit_Framework_TestCase;
 
 class RestartTest extends PHPUnit_Framework_TestCase
 {
-    public function testFalseIsTrue()
+    public function testRestart()
     {
-        $this->assertTrue(false);
+        // TODO
     }
 }

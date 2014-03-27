@@ -5,7 +5,7 @@ use GearmanHandler\Daemon;
 use GearmanHandler\Config;
 use GearmanHandler\Worker;
 use GearmanHandler\Process;
-use GearmanHandler\Tests\Workers\CreateFile;
+use GearmanHandler\Tests\Jobs\CreateFile;
 use PHPUnit_Framework_TestCase;
 
 class JobTest extends PHPUnit_Framework_TestCase
@@ -17,19 +17,19 @@ class JobTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->config = new Config(require_once __DIR__ . "/_files/config.php");
+        $this->config = new Config(require __DIR__ . "/_files/config.php");
     }
 
     public function tearDown()
     {
         if (file_exists(CreateFile::getFilePath())) {
-            unlink(__DIR__ . '/__files/worker_test');
+            unlink(CreateFile::getFilePath());
         }
     }
 
     public function testRegisterJobs()
     {
-        $daemon = new Daemon();
+        $daemon = new Daemon($this->config);
         $daemon->addCallback(function (Daemon $daemon) use (&$test) {
             $test = true;
             $daemon->setKill(true);
@@ -38,16 +38,17 @@ class JobTest extends PHPUnit_Framework_TestCase
         $workers = $daemon->getRegisteredJobs();
 
         $this->assertEquals(1, count($workers));
-        $this->assertEquals('\GearmanHandler\Tests\Workers\CreateFile', $workers[0]);
+        $this->assertEquals('\GearmanHandler\Tests\Jobs\CreateFile', $workers[0]);
     }
 
     public function testJob()
     {
-        $daemon = new Daemon();
+        $daemon = new Daemon($this->config);
         $daemon->run();
 
-        Worker::execute('CreateFile');
+        $worker = new Worker($this->config);
+        $worker->execute('CreateFile');
 
-        Process::stop();
+        (new Process($this->config))->stop();
     }
 }

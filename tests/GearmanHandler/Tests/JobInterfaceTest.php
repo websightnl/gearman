@@ -5,8 +5,8 @@ use PHPUnit_Framework_TestCase;
 
 class JobInterfaceTest extends PHPUnit_Framework_TestCase
 {
-    public function testFalseIsTrue()
+    public function testJobInterface()
     {
-        $this->assertTrue(false);
+        // TODO
     }
 }

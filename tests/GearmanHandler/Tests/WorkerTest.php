@@ -5,8 +5,8 @@ use PHPUnit_Framework_TestCase;
 
 class WorkerTest extends PHPUnit_Framework_TestCase
 {
-    public function testFalseIsTrue()
+    public function testWorker()
     {
-        $this->assertTrue(false);
+        // TODO
     }
 }

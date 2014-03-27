@@ -155,7 +155,7 @@ class Daemon
 
         while ($worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
             if ($this->getKill()) {
-                exit;
+                break;
             }
 
             pcntl_signal_dispatch();
@@ -210,7 +210,7 @@ class Daemon
                         throw new Exception('Class ' . $className . ' does not implements GearmanHandler\\JobInterface interface');
                     } else {
                         $this->registeredJobs[] = $className;
-                        $this->worker->addFunction($class->getName(), [$className, 'execute']);
+                        $this->worker->addFunction($class->getName(), [new $className, 'execute']);
                     }
                 }
             }
