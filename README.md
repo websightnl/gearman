@@ -13,7 +13,7 @@ File ``/path/to/config.php``
 return [
     'gearman_host' => '127.0.0.1',
     'gearman_port' => 4730,
-    'worker_dir' => '/path/to/workers',
+    'jobs_dir' => '/path/to/jobs',
     'user' => 'apache'
 ];
 ```
@@ -47,7 +47,7 @@ php vendor/bin/gearman start -c /path/to/config.php
 $config = new GearmanHandler\Config([
     'gearman_host' => '127.0.0.1',
     'gearman_port' => 4730,
-    'jobs_dir' => __DIR__ . '/Jobs'
+    'jobs_dir' => '/path/to/jobs'
 ]);
 $worker = new GearmanHandler\Worker($config);
 $worker->execute('JobExample', ['data' => 'value']);
