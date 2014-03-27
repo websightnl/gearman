@@ -7,9 +7,22 @@ class Process
     const LOCK_FILE = 'gearmanhandler.lock';
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @param Config $config
+     */
+    public function __construct(Config $config)
+    {
+        $this->setConfig($config);
+    }
+
+    /**
      * @return string
      */
-    public static function getPidFile()
+    public function getPidFile()
     {
         return sys_get_temp_dir() . DIRECTORY_SEPARATOR . self::PID_FILE;
     }
@@ -17,22 +30,22 @@ class Process
     /**
      * @return string
      */
-    public static function getLockFile()
+    public function getLockFile()
     {
         return sys_get_temp_dir() . DIRECTORY_SEPARATOR . self::LOCK_FILE;
     }
 
-    public static function stop()
+    public function stop()
     {
-        if (file_exists($file = self::getPidFile())) {
-            $pid = (int)file_get_contents(self::getPidFile());
+        if (file_exists($file = $this->getPidFile())) {
+            $pid = (int)file_get_contents($this->getPidFile());
         }
 
         if (isset($pid) && $pid) {
             posix_kill($pid, SIGUSR1);
         }
 
-        if (file_exists($file = self::getPidFile()) && is_writable($file)) {
+        if (file_exists($file = $this->getPidFile()) && is_writable($file)) {
             unlink($file);
         }
     }
@@ -40,17 +53,17 @@ class Process
     /**
      * @param string $pid
      */
-    public static function setPid($pid)
+    public function setPid($pid)
     {
-        file_put_contents(self::getPidFile(), $pid);
+        file_put_contents($this->getPidFile(), $pid);
     }
 
     /**
      * @return bool|resource
      */
-    public static function lock()
+    public function lock()
     {
-        $fp = fopen(self::getLockFile(), "w+");
+        $fp = fopen($this->getLockFile(), "w+");
 
         if (flock($fp, LOCK_EX | LOCK_NB)) {
             return $fp;
@@ -62,12 +75,12 @@ class Process
     /**
      * @param resource $fp
      */
-    public static function release($fp)
+    public function release($fp)
     {
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        if (file_exists($file = self::getLockFile()) && is_writable($file)) {
+        if (file_exists($file = $this->getLockFile()) && is_writable($file)) {
             unlink($file);
         }
     }
@@ -75,9 +88,9 @@ class Process
     /**
      * @return bool
      */
-    public static function isRunning()
+    public function isRunning()
     {
-        $fp = fopen(self::getLockFile(), "w+");
+        $fp = fopen($this->getLockFile(), "w+");
 
         if (!flock($fp, LOCK_SH | LOCK_NB)) {
             fclose($fp);
@@ -86,5 +99,23 @@ class Process
 
         fclose($fp);
         return false;
+    }
+
+    /**
+     * @param Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+        return $this;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 }

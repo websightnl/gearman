@@ -9,19 +9,22 @@ class Worker
     const LOW = 1;
     const HIGH = 2;
 
-    /** @var \GearmanClient $client */
-    private static $client;
+    /**
+     * @var GearmanClient
+     */
+    private $client;
 
     /**
-     * @param GearmanClient|null $client
+     * @var Config
      */
-    public static function setClient(GearmanClient $client = null)
-    {
-        if (null === $client) {
-            self::$client = new GearmanClient;
-        }
+    private $config;
 
-        self::$client->addServer(Config::getGearmanHost(), Config::getGearmanPort());
+    /**
+     * @param Config $config
+     */
+    public function __construct(Config $config)
+    {
+        $this->setConfig($config);
     }
 
     /**
@@ -30,21 +33,17 @@ class Worker
      * @param int $priority
      * @param string $unique
      */
-    public static function background($name, $data = null, $priority = self::NORMAL, $unique = null)
+    public function background($name, $data = null, $priority = self::NORMAL, $unique = null)
     {
-        if (null === self::$client) {
-            self::setClient();
-        }
-
         switch ($priority) {
             case self::NORMAL:
-                self::$client->doBackground($name, self::serialize($data), $unique);
+                $this->getClient()->doBackground($name, self::serialize($data), $unique);
                 break;
             case self::LOW:
-                self::$client->doLowBackground($name, self::serialize($data), $unique);
+                $this->getClient()->doLowBackground($name, self::serialize($data), $unique);
                 break;
             case self::HIGH:
-                self::$client->doHighBackground($name, self::serialize($data), $unique);
+                $this->getClient()->doHighBackground($name, self::serialize($data), $unique);
                 break;
         }
     }
@@ -55,21 +54,17 @@ class Worker
      * @param int $priority
      * @param string $unique
      */
-    public static function execute($name, $data = null, $priority = self::NORMAL, $unique = null)
+    public function execute($name, $data = null, $priority = self::NORMAL, $unique = null)
     {
-        if (null === self::$client) {
-            self::setClient();
-        }
-
         switch ($priority) {
             case self::NORMAL:
-                self::$client->doNormal($name, self::serialize($data), $unique);
+                $this->getClient()->doNormal($name, self::serialize($data), $unique);
                 break;
             case self::LOW:
-                self::$client->doLow($name, self::serialize($data), $unique);
+                $this->getClient()->doLow($name, self::serialize($data), $unique);
                 break;
             case self::HIGH:
-                self::$client->doHigh($name, self::serialize($data), $unique);
+                $this->getClient()->doHigh($name, self::serialize($data), $unique);
                 break;
         }
     }
@@ -78,8 +73,56 @@ class Worker
      * @param mixed $data
      * @return string
      */
-    private static function serialize($data = [])
+    private function serialize($data = [])
     {
         return serialize($data);
+    }
+
+    /**
+     * @param GearmanClient|null $client
+     * @return $this
+     */
+    public function setClient(GearmanClient $client = null)
+    {
+        $client->addServer($this->getConfig()->getGearmanHost(), $this->getConfig()->getGearmanPort());
+        $this->client = $client;
+        return $this;
+    }
+
+    /**
+     * @return GearmanClient|null
+     */
+    public function getClient()
+    {
+        if (null === $this->client) {
+            $this->createClient();
+        }
+        return $this->client;
+    }
+
+    /**
+     * @return $this
+     */
+    private function createClient()
+    {
+        return $this->setClient(new GearmanClient);
+    }
+
+    /**
+     * @param Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+        return $this;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 }

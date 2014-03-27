@@ -20,7 +20,7 @@ class Config
     /**
      * @var string
      */
-    private $workerDir;
+    private $jobsDir;
 
     /**
      * @var int
@@ -67,9 +67,9 @@ class Config
                     case 'gearman_port':
                         $this->setGearmanPort($value);
                         break;
-                    case 'workerDir':
-                    case 'worker_dir':
-                        $this->setWorkerDir($value);
+                    case 'jobsDir':
+                    case 'jobs_dir':
+                        $this->setJobsDir($value);
                         break;
                     case 'workerLifetime':
                     case 'worker_lifetime':
@@ -102,9 +102,9 @@ class Config
             case 'gearman_port':
                 return $this->getGearmanPort();
                 break;
-            case 'workerDir':
-            case 'worker_dir':
-                return $this->getWorkerDir();
+            case 'jobsDir':
+            case 'jobs_dir':
+                return $this->getJobsDir();
                 break;
             case 'workerLifetime':
             case 'worker_lifetime':
@@ -176,21 +176,21 @@ class Config
     }
 
     /**
-     * @param string $workerDir
+     * @param string $jobsDir
      * @return $this
      */
-    public function setWorkerDir($workerDir)
+    public function setJobsDir($jobsDir)
     {
-        $this->workerDir = $workerDir;
+        $this->jobsDir = $jobsDir;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getWorkerDir()
+    public function getJobsDir()
     {
-        return $this->workerDir;
+        return $this->jobsDir;
     }
 
     /**

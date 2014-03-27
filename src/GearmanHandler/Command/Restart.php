@@ -27,17 +27,21 @@ class Restart extends Command
     {
         $output->write('Stoping gearman-handler: ');
 
-        Process::stop();
+        $config = new Config;
+        if ($configFile = $input->getOption('config')) {
+            $configFile = realpath($configFile);
+            if (is_file($configFile)) {
+                $config->set(require $configFile);
+            }
+        }
+
+        (new Process($config))->stop();
 
         $output->write('[ <fg=green>OK</fg=green> ]', true);
 
         $output->write('Starting gearman-handler: ');
 
-        if ($config = $input->getOption('config')) {
-            Config::setConfigFile(realpath($config));
-        }
-
-        (new Daemon)->run();
+        (new Daemon($config))->run();
 
         $output->write('[ <fg=green>OK</fg=green> ]', true);
     }

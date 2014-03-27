@@ -1,6 +1,7 @@
 <?php
 namespace GearmanHandler\Command;
 
+use GearmanHandler\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,7 +24,7 @@ class Stop extends Command
     {
         $output->write('Stoping gearman-handler: ');
 
-        Process::stop();
+        (new Process(new Config))->stop();
 
         $output->write('[ <fg=green>OK</fg=green> ]', true);
     }

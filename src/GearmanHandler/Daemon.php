@@ -3,6 +3,8 @@ namespace GearmanHandler;
 
 use GearmanWorker;
 use React\EventLoop\Factory as Loop;
+use React\EventLoop\StreamSelectLoop;
+use React\EventLoop\LibEventLoop;
 use Exception;
 use Closure;
 
@@ -10,40 +12,75 @@ declare(ticks = 1);
 
 class Daemon
 {
-    /** @var array $callbacks */
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @var Process
+     */
+    private $process;
+
+    /**
+     * @var array
+     */
     private $callbacks = [];
 
-    /** @var \React\EventLoop\StreamSelectLoop|\React\EventLoop\LibEventLoop $loop */
+    /**
+     * @var StreamSelectLoop|LibEventLoop
+     */
     private $loop;
 
-    /** @var bool|resource $lock */
+    /**
+     * @var bool|resource
+     */
     private $lock = false;
 
-    /** @var bool $kill */
+    /**
+     * @var bool
+     */
     private $kill = false;
 
-    /** @var \GearmanWorker $worker */
+    /**
+     * @var GearmanWorker
+     */
     private $worker;
 
-    /** @var array $registered_workers */
-    private $registered_workers = [];
+    /**
+     * @var array
+     */
+    private $registeredJobs = [];
 
-    public function __construct()
+    /**
+     * @param Config $config
+     * @param StreamSelectLoop|LibEventLoop $loop
+     * @param Process $process
+     */
+    public function __construct(Config $config = null, Process $process = null, $loop = null)
     {
-        $this->loop = Loop::create();
+        if (null !== $config) {
+            $this->setConfig($config);
+        }
+        if (null !== $process) {
+            $this->setProcess($process);
+        }
+        if ($loop instanceof StreamSelectLoop || $loop instanceof StreamSelectLoop) {
+            $this->setLoop($loop);
+        }
     }
 
     public function __destruct()
     {
         if (is_resource($this->lock)) {
-            Process::release($this->lock);
+            $this->getProcess()->release($this->lock);
         }
     }
 
     public function run($fork = true)
     {
-        $pidFile = Process::getPidFile();
-        $lockFile = Process::getLockFile();
+        $pidFile = $this->getProcess()->getPidFile();
+        $lockFile = $this->getProcess()->getLockFile();
         if (is_file($pidFile) && is_writable($pidFile)) {
             unlink($pidFile);
         }
@@ -51,7 +88,7 @@ class Daemon
             unlink($lockFile);
         }
 
-        $user = Config::getUser();
+        $user = $this->getConfig()->getUser();
         if ($user) {
             $user = posix_getpwnam($user);
             posix_setgid($user['gid']);
@@ -66,7 +103,7 @@ class Daemon
         }
 
         if (!$fork || (isset($pid) && $pid !== -1 && !$pid)) {
-            Process::setPid(posix_getpid());
+            $this->getProcess()->setPid(posix_getpid());
 
             if (isset($pid) && $pid !== -1 && !$pid) {
                 $parantPid = posix_getppid();
@@ -75,10 +112,10 @@ class Daemon
                 }
             }
 
-            $this->lock = Process::lock();
+            $this->lock = $this->getProcess()->lock();
             $this->signalHandlers();
             $this->createWorker();
-            $this->registerWorkers();
+            $this->registerJobs();
             $this->createLoop();
         } elseif ($fork && isset($pid) && $pid) {
             $wait = true;
@@ -105,7 +142,7 @@ class Daemon
     private function createWorker()
     {
         $this->worker = new GearmanWorker();
-        $this->worker->addServer(Config::getGearmanHost(), Config::getGearmanPort());
+        $this->worker->addServer($this->getConfig()->getGearmanHost(), $this->getConfig()->getGearmanPort());
     }
 
     private function createLoop()
@@ -140,26 +177,26 @@ class Daemon
     /**
      * @return array
      */
-    public function getRegisteredWorkers()
+    public function getRegisteredJobs()
     {
-        return $this->registered_workers;
+        return $this->registeredJobs;
     }
 
     /**
-     * @param null $dir
+     * @param null|string $dir
      * @throws \Exception
      */
-    private function registerWorkers($dir = null)
+    private function registerJobs($dir = null)
     {
         if (null === $dir) {
-            $dir = Config::getWorkerDir();
+            $dir = $this->getConfig()->getJobsDir();
         }
 
-        if (is_dir($dir)) {
+        if (null !== $dir && is_dir($dir)) {
             foreach (scandir($dir) as $file) {
                 if ($file !== '.' && $file !== '..' && is_dir($dir . DIRECTORY_SEPARATOR . $file)) {
                     $file = $dir . DIRECTORY_SEPARATOR . $file;
-                    $this->registerWorkers($file);
+                    $this->registerJobs($file);
                 } elseif (strtolower(substr($file, -4)) === '.php') {
                     $file = $dir . DIRECTORY_SEPARATOR . $file;
                     $className = $this->getClassNameFromFile($file);
@@ -169,10 +206,10 @@ class Daemon
 
                     $class = new $className;
 
-                    if (!$class instanceof Job) {
-                        throw new Exception('Class ' . $className . ' does not implements GearmanHandler\\Job interface');
+                    if (!$class instanceof JobInterface) {
+                        throw new Exception('Class ' . $className . ' does not implements GearmanHandler\\JobInterface interface');
                     } else {
-                        $this->registered_workers[] = $className;
+                        $this->registeredJobs[] = $className;
                         $this->worker->addFunction($class->getName(), [$className, 'execute']);
                     }
                 }
@@ -229,7 +266,7 @@ class Daemon
     }
 
     /**
-     * @param \React\EventLoop\StreamSelectLoop|\React\EventLoop\LibEventLoop $loop
+     * @param StreamSelectLoop|LibEventLoop $loop
      * @return $this
      */
     public function setLoop($loop)
@@ -239,10 +276,13 @@ class Daemon
     }
 
     /**
-     * @return \React\EventLoop\LibEventLoop|\React\EventLoop\StreamSelectLoop
+     * @return LibEventLoop|StreamSelectLoop
      */
     public function getLoop()
     {
+        if (null === $this->loop) {
+            $this->setLoop(Loop::create());
+        }
         return $this->loop;
     }
 
@@ -262,5 +302,63 @@ class Daemon
     {
         $this->kill = $kill;
         return $this;
+    }
+
+    /**
+     * @param Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+        return $this;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfig()
+    {
+        if (null === $this->config) {
+            $this->createConfig();
+        }
+        return $this->config;
+    }
+
+    /**
+     * @return $this
+     */
+    private function createConfig()
+    {
+        return $this->setConfig(new Config);
+    }
+
+    /**
+     * @param Process $process
+     * @return $this
+     */
+    public function setProcess(Process $process)
+    {
+        $this->process = $process;
+        return $this;
+    }
+
+    /**
+     * @return Process
+     */
+    public function getProcess()
+    {
+        if (null === $this->process) {
+            $this->createProcess();
+        }
+        return $this->process;
+    }
+
+    /**
+     * @return $this
+     */
+    private function createProcess()
+    {
+        return $this->setProcess(new Process($this->getConfig()));
     }
 }

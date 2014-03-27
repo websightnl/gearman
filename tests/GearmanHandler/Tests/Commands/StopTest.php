@@ -1,9 +1,9 @@
 <?php
-namespace GearmanHandler\Tests;
+namespace GearmanHandler\Tests\Commands;
 
 use PHPUnit_Framework_TestCase;
 
-class WorkerTest extends PHPUnit_Framework_TestCase
+class StopTest extends PHPUnit_Framework_TestCase
 {
     public function testFalseIsTrue()
     {

@@ -27,16 +27,21 @@ class Start extends Command
     {
         $output->write('Starting gearman-handler: ');
 
-        if (Process::isRunning()) {
+        $config = new Config;
+        if ($configFile = $input->getOption('config')) {
+            $configFile = realpath($configFile);
+            if (is_file($configFile)) {
+                $config->set(require $configFile);
+            }
+        }
+
+        $process = new Process($config);
+        if ($process->isRunning()) {
             $output->write('[ <error>Failed: Process is already runnning</error> ]', true);
             return;
         }
 
-        if ($config = $input->getOption('config')) {
-            Config::setConfigFile(realpath($config));
-        }
-
-        (new Daemon)->run();
+        (new Daemon($config))->run();
 
         $output->write('[ <fg=green>OK</fg=green> ]', true);
     }

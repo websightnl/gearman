@@ -6,7 +6,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use GearmanHandler\Command\Start as StartCommand;
 
-class StartCommandTest extends PHPUnit_Framework_TestCase
+class StartTest extends PHPUnit_Framework_TestCase
 {
     public function testExecute()
     {

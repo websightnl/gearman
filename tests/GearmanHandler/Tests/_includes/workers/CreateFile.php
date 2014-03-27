@@ -1,18 +1,23 @@
 <?php
 namespace GearmanHandler\Tests\Workers;
 
+use GearmanHandler\JobInterface;
 use GearmanJob;
-use GearmanHandler\Job;
 
-class CreateFile implements Job
+class CreateFile implements JobInterface
 {
-    public static function getName()
+    public static function getFilePath()
+    {
+        return sys_get_temp_dir() . '/GearmanHandlerJobTest';
+    }
+
+    public function getName()
     {
         return 'CreateFile';
     }
 
-    public static function execute(GearmanJob $job)
+    public function execute(GearmanJob $job)
     {
-        file_put_contents(__DIR__ . '/../worker_test', 'true');
+        file_put_contents(self::getFilePath(), 'true');
     }
 }

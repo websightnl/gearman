@@ -18,7 +18,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $config = new Config();
         $this->assertEquals('127.0.0.1', $config->getGearmanHost());
         $this->assertEquals(4730, $config->getGearmanPort());
-        $this->assertNull($config->getWorkerDir());
+        $this->assertNull($config->getJobsDir());
         $this->assertNull($config->getWorkerLifetime());
         $this->assertFalse($config->getAutoUpdate());
 
@@ -32,7 +32,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $config->set($this->configValues);
         $this->assertEquals($this->configValues['gearman_host'], $config->get('gearman_host'));
         $this->assertEquals($this->configValues['gearman_port'], $config->get('gearman_port'));
-        $this->assertEquals($this->configValues['worker_dir'], $config->get('worker_dir'));
+        $this->assertEquals($this->configValues['jobs_dir'], $config->get('jobs_dir'));
         $this->assertEquals($this->configValues['worker_lifetime'], $config->get('worker_lifetime'));
         $this->assertEquals($this->configValues['auto_update'], $config->get('auto_update'));
     }
@@ -47,8 +47,8 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $config->setGearmanPort(6000);
         $this->assertEquals(6000, $config->getGearmanPort());
 
-        $config->setWorkerDir('test');
-        $this->assertEquals('test', $config->getWorkerDir());
+        $config->setJobsDir('test');
+        $this->assertEquals('test', $config->getJobsDir());
 
         $config->setWorkerLifetime(6000);
         $this->assertEquals(6000, $config->getWorkerLifetime());
