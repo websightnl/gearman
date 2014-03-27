@@ -23,9 +23,9 @@
         "ext-gearman": "This library needs Gearman"
     },
     "autoload": {
-        "psr-0" : {
-            "GearmanHandler" : "src/"
+        "psr-4": {
+            "GearmanHandler\\": "src/GearmanHandler"
         }
-},
-"bin": ["bin/gearman", "bin/gearman.php"]
+    },
+    "bin": ["bin/gearman", "bin/gearman.php"]
 }

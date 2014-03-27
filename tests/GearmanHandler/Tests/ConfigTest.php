@@ -10,7 +10,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->configValues = require __DIR__ . '/__files/config.php';
+        $this->configValues = require __DIR__ . '/_files/config.php';
     }
 
     public function testConstruct()
