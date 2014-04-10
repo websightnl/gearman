@@ -1,10 +1,6 @@
 <?php
 namespace GearmanHandler;
 
-/**
- * Class Config
- * @package GearmanHandler
- */
 class Config
 {
     /**
@@ -20,7 +16,7 @@ class Config
     /**
      * @var string
      */
-    private $jobsDir;
+    private $bootstrap;
 
     /**
      * @var int
@@ -38,10 +34,31 @@ class Config
     private $user;
 
     /**
+     * @var Config
+     */
+    private static $instance;
+
+    /**
+     * gets the instance via lazy initialization (created on first usage)
+     *
+     * @return self
+     */
+    public static function getInstance()
+    {
+
+        if (null === static::$instance) {
+            static::$instance = new static;
+        }
+
+        return static::$instance;
+    }
+
+    /**
      * @param array $params
      */
     public function __construct(array $params = null)
     {
+        static::$instance = $this;
         if (null !== $params) {
             $this->set($params);
         }
@@ -67,9 +84,8 @@ class Config
                     case 'gearman_port':
                         $this->setGearmanPort($value);
                         break;
-                    case 'jobsDir':
-                    case 'jobs_dir':
-                        $this->setJobsDir($value);
+                    case 'bootstrap':
+                        $this->setBootstrap($value);
                         break;
                     case 'workerLifetime':
                     case 'worker_lifetime':
@@ -102,9 +118,8 @@ class Config
             case 'gearman_port':
                 return $this->getGearmanPort();
                 break;
-            case 'jobsDir':
-            case 'jobs_dir':
-                return $this->getJobsDir();
+            case 'bootstrap':
+                return $this->getBootstrap();
                 break;
             case 'workerLifetime':
             case 'worker_lifetime':
@@ -176,21 +191,21 @@ class Config
     }
 
     /**
-     * @param string $jobsDir
+     * @param string $bootstrap
      * @return $this
      */
-    public function setJobsDir($jobsDir)
+    public function setBootstrap($bootstrap)
     {
-        $this->jobsDir = $jobsDir;
+        $this->bootstrap = $bootstrap;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getJobsDir()
+    public function getBootstrap()
     {
-        return $this->jobsDir;
+        return $this->bootstrap;
     }
 
     /**

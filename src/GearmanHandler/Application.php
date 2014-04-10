@@ -10,7 +10,7 @@ use Closure;
 
 declare(ticks = 1);
 
-class Daemon
+class Application
 {
     /**
      * @var Config
@@ -50,7 +50,7 @@ class Daemon
     /**
      * @var array
      */
-    private $registeredJobs = [];
+    private $jobs = [];
 
     /**
      * @param Config $config
@@ -59,15 +59,18 @@ class Daemon
      */
     public function __construct(Config $config = null, Process $process = null, $loop = null)
     {
-        if (null !== $config) {
-            $this->setConfig($config);
+        if (null === $config) {
+            $config = Config::getInstance();
         }
+        $this->setConfig($config);
+
         if (null !== $process) {
             $this->setProcess($process);
         }
         if ($loop instanceof StreamSelectLoop || $loop instanceof StreamSelectLoop) {
             $this->setLoop($loop);
         }
+        $this->createWorker();
     }
 
     public function __destruct()
@@ -77,6 +80,10 @@ class Daemon
         }
     }
 
+    /**
+     * @param bool $fork
+     * @throws \Exception
+     */
     public function run($fork = true)
     {
         $pidFile = $this->getProcess()->getPidFile();
@@ -114,8 +121,6 @@ class Daemon
 
             $this->lock = $this->getProcess()->lock();
             $this->signalHandlers();
-            $this->createWorker();
-            $this->registerJobs();
             $this->createLoop();
         } elseif ($fork && isset($pid) && $pid) {
             $wait = true;
@@ -131,20 +136,31 @@ class Daemon
         }
     }
 
-    public function signalHandlers()
+    /**
+     * @return $this
+     */
+    private function signalHandlers()
     {
         $root = $this;
         pcntl_signal(SIGUSR1, function () use ($root) {
             $root->setKill(true);
         });
+        return $this;
     }
 
+    /**
+     * @return $this
+     */
     private function createWorker()
     {
         $this->worker = new GearmanWorker();
         $this->worker->addServer($this->getConfig()->getGearmanHost(), $this->getConfig()->getGearmanPort());
+        return $this;
     }
 
+    /**
+     * @return $this
+     */
     private function createLoop()
     {
         $worker = $this->worker;
@@ -172,89 +188,36 @@ class Daemon
                 continue;
             }
         }
+        return $this;
     }
 
     /**
      * @return array
      */
-    public function getRegisteredJobs()
+    public function getJobs()
     {
-        return $this->registeredJobs;
+        return $this->jobs;
     }
 
     /**
-     * @param null|string $dir
-     * @throws \Exception
+     * @param JobInterface $job
+     * @return $this
      */
-    private function registerJobs($dir = null)
+    public function add(JobInterface $job)
     {
-        if (null === $dir) {
-            $dir = $this->getConfig()->getJobsDir();
-        }
-
-        if (null !== $dir && is_dir($dir)) {
-            foreach (scandir($dir) as $file) {
-                if ($file !== '.' && $file !== '..' && is_dir($dir . DIRECTORY_SEPARATOR . $file)) {
-                    $file = $dir . DIRECTORY_SEPARATOR . $file;
-                    $this->registerJobs($file);
-                } elseif (strtolower(substr($file, -4)) === '.php') {
-                    $file = $dir . DIRECTORY_SEPARATOR . $file;
-                    $className = $this->getClassNameFromFile($file);
-                    $className = (!empty($className[0]) ? $className[0] . '\\' : '') . $className[1];
-
-                    require_once $file;
-
-                    $class = new $className;
-
-                    if (!$class instanceof JobInterface) {
-                        throw new Exception('Class ' . $className . ' does not implements GearmanHandler\\JobInterface interface');
-                    } else {
-                        $this->registeredJobs[] = $className;
-                        $this->worker->addFunction($class->getName(), [new $className, 'execute']);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * @param string $file
-     * @return array
-     */
-    private function getClassNameFromFile($file)
-    {
-        $fileContent = file_get_contents($file);
-        $class = $namespace = '';
-        $i = 0;
-        $tokens = token_get_all($fileContent);
-        for (; $i < count($tokens); $i++) {
-            if ($tokens[$i][0] === T_NAMESPACE) {
-                for ($j = $i + 1; $j < count($tokens); $j++) {
-                    if ($tokens[$j][0] === T_STRING) {
-                        $namespace .= '\\' . $tokens[$j][1];
-                    } else if ($tokens[$j] === '{' || $tokens[$j] === ';') {
-                        break;
-                    }
-                }
-            }
-
-            if ($tokens[$i][0] === T_CLASS) {
-                for ($j = $i + 1; $j < count($tokens); $j++) {
-                    if ($tokens[$j] === '{') {
-                        $class = $tokens[$i + 2][1];
-                    }
-                }
-            }
-        }
-        return [$namespace, $class];
+        $this->jobs[] = $job;
+        $this->worker->addFunction($job->getName(), [$job, 'execute']);
+        return $this;
     }
 
     /**
      * @param callable $callback
+     * @return $this
      */
     public function addCallback(Closure $callback)
     {
         $this->callbacks[] = $callback;
+        return $this;
     }
 
     /**

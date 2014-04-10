@@ -1,12 +1,12 @@
 <?php
 namespace GearmanHandler\Tests;
 
-use GearmanHandler\Daemon;
+use GearmanHandler\Application;
 use GearmanHandler\Process;
 use PHPUnit_Framework_TestCase;
 use GearmanHandler\Config;
 
-class DaemonTest extends PHPUnit_Framework_TestCase
+class ApplicationTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Config
@@ -22,21 +22,21 @@ class DaemonTest extends PHPUnit_Framework_TestCase
     {
         $test = false;
 
-        $daemon = new Daemon($this->config);
-        $daemon->addCallback(function (Daemon $daemon) use (&$test) {
+        $application = new Application($this->config);
+        $application->addCallback(function (Application $application) use (&$test) {
             $test = true;
-            $daemon->setKill(true);
+            $application->setKill(true);
         });
-        $daemon->run(false);
+        $application->run(false);
 
         $this->assertTrue($test);
     }
 
-    public function testDaemon()
+    public function testApplication()
     {
         $process = new Process($this->config);
-        $daemon = new Daemon($this->config, $process);
-        $daemon->run();
+        $application = new Application($this->config, $process);
+        $application->run();
 
         $test = $process->isRunning();
 

@@ -1,8 +1,9 @@
 <?php
 namespace GearmanHandler\Tests;
 
-use GearmanHandler\Daemon;
+use GearmanHandler\Application;
 use GearmanHandler\Config;
+use GearmanHandler\Tests\Jobs\MockJob;
 use GearmanHandler\Worker;
 use GearmanHandler\Process;
 use GearmanHandler\Tests\Jobs\CreateFile;
@@ -29,13 +30,13 @@ class JobTest extends PHPUnit_Framework_TestCase
 
     public function testRegisterJobs()
     {
-        $daemon = new Daemon($this->config);
-        $daemon->addCallback(function (Daemon $daemon) use (&$test) {
+        $application = new Application($this->config);
+        $application->addCallback(function (Application $application) use (&$test) {
             $test = true;
-            $daemon->setKill(true);
+            $application->setKill(true);
         });
-        $daemon->run(false);
-        $workers = $daemon->getRegisteredJobs();
+        $application->run(false);
+        $workers = $application->getJobs();
 
         $this->assertEquals(1, count($workers));
         $this->assertEquals('\GearmanHandler\Tests\Jobs\CreateFile', $workers[0]);
@@ -43,8 +44,9 @@ class JobTest extends PHPUnit_Framework_TestCase
 
     public function testJob()
     {
-        $daemon = new Daemon($this->config);
-        $daemon->run();
+        $application = new Application($this->config);
+        $application->add(new MockJob());
+        $application->run();
 
         $worker = new Worker($this->config);
         $worker->execute('CreateFile');

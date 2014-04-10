@@ -15,7 +15,10 @@ class Start extends Command
     {
         $this->setName('start')
             ->setDescription('Start the gearman workers daemon')
-            ->addOption('config', 'c', InputOption::VALUE_OPTIONAL);
+            ->addOption('bootstrap', InputOption::VALUE_OPTIONAL)
+            ->addOption('host', InputOption::VALUE_OPTIONAL)
+            ->addOption('port', InputOption::VALUE_OPTIONAL)
+            ->addOption('user', InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -28,11 +31,18 @@ class Start extends Command
         $output->write('Starting gearman-handler: ');
 
         $config = new Config;
-        if ($configFile = $input->getOption('config')) {
-            $configFile = realpath($configFile);
-            if (is_file($configFile)) {
-                $config->set(require $configFile);
-            }
+
+        if ($bootstrap = $input->getOption('bootstrap')) {
+            $config->setBootstrap($bootstrap);
+        }
+        if ($host = $input->getOption('host')) {
+            $config->setBootstrap($host);
+        }
+        if ($port = $input->getOption('port')) {
+            $config->setBootstrap($port);
+        }
+        if ($user = $input->getOption('user')) {
+            $config->setBootstrap($user);
         }
 
         $process = new Process($config);
@@ -41,7 +51,9 @@ class Start extends Command
             return;
         }
 
-        (new Daemon($config))->run();
+        if (is_file($bootstrap)) {
+            require_once $bootstrap;
+        }
 
         $output->write('[ <fg=green>OK</fg=green> ]', true);
     }

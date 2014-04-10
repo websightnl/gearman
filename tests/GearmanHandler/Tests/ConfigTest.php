@@ -13,12 +13,25 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $this->configValues = require __DIR__ . '/_files/config.php';
     }
 
+    public function testSingleton()
+    {
+        $config = Config::getInstance();
+        $this->assertInstanceOf('GearmanHandler\Config', $config);
+
+        $config = new Config();
+        $config->setGearmanHost('test1');
+
+        $config = Config::getInstance();
+        $this->assertInstanceOf('GearmanHandler\Config', $config);
+        $this->assertEquals('test1', $config->getGearmanHost());
+    }
+
     public function testConstruct()
     {
         $config = new Config();
         $this->assertEquals('127.0.0.1', $config->getGearmanHost());
         $this->assertEquals(4730, $config->getGearmanPort());
-        $this->assertNull($config->getJobsDir());
+        $this->assertNull($config->getBootstrap());
         $this->assertNull($config->getWorkerLifetime());
         $this->assertFalse($config->getAutoUpdate());
 
@@ -32,7 +45,6 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $config->set($this->configValues);
         $this->assertEquals($this->configValues['gearman_host'], $config->get('gearman_host'));
         $this->assertEquals($this->configValues['gearman_port'], $config->get('gearman_port'));
-        $this->assertEquals($this->configValues['jobs_dir'], $config->get('jobs_dir'));
         $this->assertEquals($this->configValues['worker_lifetime'], $config->get('worker_lifetime'));
         $this->assertEquals($this->configValues['auto_update'], $config->get('auto_update'));
     }
@@ -47,8 +59,8 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $config->setGearmanPort(6000);
         $this->assertEquals(6000, $config->getGearmanPort());
 
-        $config->setJobsDir('test');
-        $this->assertEquals('test', $config->getJobsDir());
+        $config->setBootstrap('test');
+        $this->assertEquals('test', $config->getBootstrap());
 
         $config->setWorkerLifetime(6000);
         $this->assertEquals(6000, $config->getWorkerLifetime());
