@@ -10,12 +10,14 @@ before_script:
   # gearman
   - sudo apt-get remove gearman-job-server
   - sudo apt-get install gearman-job-server libgearman-dev
-  - printf "\n"| pecl install gearman-1.0.3
-    ## Composer
+  - printf "\n"| pecl install gearman-1.1.2
+  ## Composer
   - composer self-update
   - composer install --prefer-source --no-interaction --dev
 
-script: phpunit
+script:
+  - gearmand -d
+  - phpunit
 
 matrix:
   allow_failures:
