@@ -15,10 +15,10 @@ class Start extends Command
     {
         $this->setName('start')
             ->setDescription('Start the gearman workers daemon')
-            ->addOption('bootstrap', InputOption::VALUE_OPTIONAL)
-            ->addOption('host', InputOption::VALUE_OPTIONAL)
-            ->addOption('port', InputOption::VALUE_OPTIONAL)
-            ->addOption('user', InputOption::VALUE_OPTIONAL);
+            ->addOption('bootstrap', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('host', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('port', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('user', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**

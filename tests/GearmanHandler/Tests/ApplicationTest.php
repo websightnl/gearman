@@ -5,6 +5,7 @@ use GearmanHandler\Application;
 use GearmanHandler\Process;
 use PHPUnit_Framework_TestCase;
 use GearmanHandler\Config;
+use GearmanHandler\Tests\Jobs\MockJob;
 
 class ApplicationTest extends PHPUnit_Framework_TestCase
 {
@@ -23,6 +24,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
         $test = false;
 
         $application = new Application($this->config);
+        $application->add(new MockJob());
         $application->addCallback(function (Application $application) use (&$test) {
             $test = true;
             $application->setKill(true);
@@ -36,6 +38,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
     {
         $process = new Process($this->config);
         $application = new Application($this->config, $process);
+        $application->add(new MockJob());
         $application->run();
 
         $test = $process->isRunning();

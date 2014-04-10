@@ -31,6 +31,8 @@ class JobTest extends PHPUnit_Framework_TestCase
     public function testRegisterJobs()
     {
         $application = new Application($this->config);
+        $application->add(new MockJob());
+        $application->add(new CreateFile());
         $application->addCallback(function (Application $application) use (&$test) {
             $test = true;
             $application->setKill(true);
@@ -38,19 +40,28 @@ class JobTest extends PHPUnit_Framework_TestCase
         $application->run(false);
         $workers = $application->getJobs();
 
-        $this->assertEquals(1, count($workers));
-        $this->assertEquals('\GearmanHandler\Tests\Jobs\CreateFile', $workers[0]);
+        $this->assertEquals(2, count($workers));
+        $this->assertInstanceOf('GearmanHandler\Tests\Jobs\MockJob', $workers[0]);
+        $this->assertInstanceOf('GearmanHandler\Tests\Jobs\CreateFile', $workers[1]);
     }
 
     public function testJob()
     {
-        $application = new Application($this->config);
+        $process = new Process($this->config);
+        $application = new Application($this->config, $process);
         $application->add(new MockJob());
+        $application->add(new CreateFile());
         $application->run();
 
         $worker = new Worker($this->config);
         $worker->execute('CreateFile');
 
-        (new Process($this->config))->stop();
+        $this->assertFileExists(CreateFile::getFilePath());
+
+        $test = $process->isRunning();
+
+        $this->assertTrue($test);
+
+        $process->stop();
     }
 }
