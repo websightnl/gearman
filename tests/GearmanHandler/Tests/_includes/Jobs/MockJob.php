@@ -11,7 +11,7 @@ class MockJob implements JobInterface
         return 'MockJob';
     }
 
-    public function execute(GearmanJob $job)
+    public function execute(GearmanJob $job = null)
     {
     }
 }

@@ -45,25 +45,31 @@ class Worker
      */
     public function background($name, $data = null, $priority = self::NORMAL, $unique = null)
     {
+        $client = $this->getClient();
+
         if (null !== $this->logger) {
-            $this->logger->debug("Execute background job \"{$name}\" to GearmanClient");
+            $this->logger->debug("Sent background job \"{$name}\" to GearmanClient");
         }
 
         $jobHandle = null;
         switch ($priority) {
-            case self::NORMAL:
-                $jobHandle = $this->getClient()->doBackground($name, self::serialize($data), $unique);
-                break;
             case self::LOW:
-                $jobHandle = $this->getClient()->doLowBackground($name, self::serialize($data), $unique);
+                $jobHandle = $client->doLowBackground($name, self::serialize($data), $unique);
                 break;
             case self::HIGH:
-                $jobHandle = $this->getClient()->doHighBackground($name, self::serialize($data), $unique);
+                $jobHandle = $client->doHighBackground($name, self::serialize($data), $unique);
+                break;
+            default:
+                $jobHandle = $client->doBackground($name, self::serialize($data), $unique);
                 break;
         }
 
+        if ($client->returnCode() !== GEARMAN_SUCCESS) {
+            $this->logger->error("Bad return code");
+        }
+
         if (null !== $this->logger) {
-            $this->logger->debug("Job handle for \"{$name}\" is {$jobHandle}");
+            $this->logger->info("Sent job \"{$jobHandle}\" to GearmanWorker");
         }
     }
 
@@ -72,29 +78,38 @@ class Worker
      * @param mixed $data
      * @param int $priority
      * @param string $unique
+     * @return mixed
      */
     public function execute($name, $data = null, $priority = self::NORMAL, $unique = null)
     {
+        $client = $this->getClient();
+
         if (null !== $this->logger) {
-            $this->logger->debug("Execute job \"{$name}\" to GearmanClient");
+            $this->logger->debug("Sent job \"{$name}\" to GearmanClient");
         }
 
-        $jobHandle = null;
+        $result = null;
         switch ($priority) {
-            case self::NORMAL:
-                $jobHandle = $this->getClient()->doNormal($name, self::serialize($data), $unique);
-                break;
             case self::LOW:
-                $jobHandle = $this->getClient()->doLow($name, self::serialize($data), $unique);
+                $result = $client->doLow($name, self::serialize($data), $unique);
                 break;
             case self::HIGH:
-                $jobHandle = $this->getClient()->doHigh($name, self::serialize($data), $unique);
+                $result = $client->doHigh($name, self::serialize($data), $unique);
+                break;
+            default:
+                $result = $client->doNormal($name, self::serialize($data), $unique);
                 break;
         }
 
-        if (null !== $this->logger) {
-            $this->logger->debug("Job handle for \"{$name}\" is {$jobHandle}");
+        if ($client->returnCode() !== GEARMAN_SUCCESS) {
+            $this->logger->error("Bad return code");
         }
+
+        if (null !== $this->logger) {
+            $this->logger->debug("Job \"{$name}\" returned {$result}");
+        }
+
+        return $result;
     }
 
     /**

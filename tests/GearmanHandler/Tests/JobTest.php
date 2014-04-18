@@ -44,24 +44,4 @@ class JobTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('GearmanHandler\Tests\Jobs\MockJob', $workers[0]);
         $this->assertInstanceOf('GearmanHandler\Tests\Jobs\CreateFile', $workers[1]);
     }
-
-    public function testJob()
-    {
-        $process = new Process($this->config);
-        $application = new Application($this->config, $process);
-        $application->add(new MockJob());
-        $application->add(new CreateFile());
-        $application->run();
-
-        $worker = new Worker($this->config);
-        $worker->execute('CreateFile');
-
-        $this->assertFileExists(CreateFile::getFilePath());
-
-        $test = $process->isRunning();
-
-        $this->assertTrue($test);
-
-        $process->stop();
-    }
 }

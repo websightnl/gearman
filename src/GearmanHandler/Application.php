@@ -9,8 +9,6 @@ use React\EventLoop\LibEventLoop;
 use Exception;
 use Closure;
 
-declare(ticks = 1);
-
 class Application
 {
     /**
@@ -88,7 +86,7 @@ class Application
     {
         if (is_resource($this->lock)) {
             if (null !== $this->logger) {
-                $this->logger->info("Closed GearmanWorker server");
+                $this->logger->info("Stopped GearmanWorker Server");
             }
             $this->getProcess()->release($this->lock);
         }
@@ -137,6 +135,11 @@ class Application
             }
 
             $this->lock = $this->getProcess()->lock();
+
+            if (null !== $this->logger) {
+                $this->logger->info("Started GearmanWorker Server");
+            }
+
             $this->signalHandlers();
             $this->createLoop();
         } elseif ($fork && isset($pid) && $pid) {
@@ -181,7 +184,6 @@ class Application
     private function createLoop()
     {
         $worker = $this->worker;
-
         $worker->setTimeout(10);
 
         $callbacks = $this->getCallbacks();
@@ -198,13 +200,8 @@ class Application
                     $callback($this);
                 }
             }
-
-            usleep(50000);
-
-            if ($worker->returnCode() === GEARMAN_TIMEOUT) {
-                continue;
-            }
         }
+
         return $this;
     }
 
@@ -223,8 +220,24 @@ class Application
     public function add(JobInterface $job)
     {
         $this->jobs[] = $job;
-        $this->worker->addFunction($job->getName(), [$job, 'execute']);
+        $root = $this;
+        $this->worker->addFunction($job->getName(), function(\GearmanJob $gearmanJob) use ($root, $job) {
+            return $root->executeJob($job, $gearmanJob);
+        });
         return $this;
+    }
+
+    /**
+     * @param JobInterface $job
+     * @param \GearmanJob $gearmanJob
+     * @return mixed
+     */
+    public function executeJob(JobInterface $job, \GearmanJob $gearmanJob)
+    {
+        if (null !== $this->logger) {
+            $this->logger->info("Executing job {$job->getName()}");
+        }
+        return $job->execute($gearmanJob);
     }
 
     /**

@@ -11,8 +11,8 @@ interface JobInterface
     public function getName();
 
     /**
-     * @param GearmanJob $job
+     * @param GearmanJob|null $job
      * @return mixed
      */
-    public function execute(GearmanJob $job);
+    public function execute(GearmanJob $job = null);
 }

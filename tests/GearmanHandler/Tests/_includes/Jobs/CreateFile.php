@@ -16,7 +16,7 @@ class CreateFile implements JobInterface
         return 'CreateFile';
     }
 
-    public function execute(GearmanJob $job)
+    public function execute(GearmanJob $job = null)
     {
         file_put_contents(self::getFilePath(), 'true');
     }

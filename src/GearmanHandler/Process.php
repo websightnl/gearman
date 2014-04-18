@@ -70,7 +70,7 @@ class Process
     public function setPid($pid)
     {
         if (null !== $this->logger) {
-            $this->logger->debug("Start GearmanWorker Daemon {$pid}");
+            $this->logger->debug("Started GearmanWorker Daemon {$pid}");
         }
         file_put_contents($this->getPidFile(), $pid);
     }
