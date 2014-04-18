@@ -1,6 +1,8 @@
 <?php
 namespace GearmanHandler;
 
+use Psr\Log\LoggerInterface;
+
 class Process
 {
     const PID_FILE = 'gearmanhandler.pid';
@@ -12,11 +14,20 @@ class Process
     private $config;
 
     /**
-     * @param Config $config
+     * @var LoggerInterface
      */
-    public function __construct(Config $config)
+    private $logger;
+
+    /**
+     * @param Config $config
+     * @param LoggerInterface $logger
+     */
+    public function __construct(Config $config, LoggerInterface $logger = null)
     {
         $this->setConfig($config);
+        if (null !== $logger) {
+            $this->setLogger($logger);
+        }
     }
 
     /**
@@ -43,6 +54,9 @@ class Process
 
         if (isset($pid) && $pid) {
             posix_kill($pid, SIGUSR1);
+            if (null !== $this->logger) {
+                $this->logger->debug("Stopped GearmanWorker Daemon {$pid}");
+            }
         }
 
         if (file_exists($file = $this->getPidFile()) && is_writable($file)) {
@@ -55,6 +69,9 @@ class Process
      */
     public function setPid($pid)
     {
+        if (null !== $this->logger) {
+            $this->logger->debug("Start GearmanWorker Daemon {$pid}");
+        }
         file_put_contents($this->getPidFile(), $pid);
     }
 
@@ -117,5 +134,23 @@ class Process
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @return $this
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        return $this;
     }
 }

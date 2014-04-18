@@ -2,6 +2,7 @@
 namespace GearmanHandler;
 
 use GearmanWorker;
+use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory as Loop;
 use React\EventLoop\StreamSelectLoop;
 use React\EventLoop\LibEventLoop;
@@ -53,16 +54,26 @@ class Application
     private $jobs = [];
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param Config $config
      * @param StreamSelectLoop|LibEventLoop $loop
      * @param Process $process
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(Config $config = null, Process $process = null, $loop = null)
+    public function __construct(Config $config = null, Process $process = null, $loop = null, LoggerInterface $logger = null)
     {
         if (null === $config) {
             $config = Config::getInstance();
         }
         $this->setConfig($config);
+
+        if (null !== $logger) {
+            $this->setLogger($logger);
+        }
 
         if (null !== $process) {
             $this->setProcess($process);
@@ -76,6 +87,9 @@ class Application
     public function __destruct()
     {
         if (is_resource($this->lock)) {
+            if (null !== $this->logger) {
+                $this->logger->info("Closed GearmanWorker server");
+            }
             $this->getProcess()->release($this->lock);
         }
     }
@@ -101,6 +115,9 @@ class Application
             posix_setgid($user['gid']);
             posix_setuid($user['uid']);
             if (posix_geteuid() != $user['uid']) {
+                if (null !== $this->logger) {
+                    $this->logger->error("Unable to change user to {$user['uid']}");
+                }
                 throw new Exception("Unable to change user to {$user['uid']}");
             }
         }
@@ -155,6 +172,9 @@ class Application
     {
         $this->worker = new GearmanWorker();
         $this->worker->addServer($this->getConfig()->getGearmanHost(), $this->getConfig()->getGearmanPort());
+        if (null !== $this->logger) {
+            $this->logger->info("Added GearmanWorker server {$this->getConfig()->getGearmanHost()}:{$this->getConfig()->getGearmanPort()}");
+        }
         return $this;
     }
 
@@ -207,6 +227,9 @@ class Application
     {
         $this->jobs[] = $job;
         $this->worker->addFunction($job->getName(), [$job, 'execute']);
+        if (null !== $this->logger) {
+            $this->logger->debug("Added GearmanWorker function {$job->getName()}");
+        }
         return $this;
     }
 
@@ -322,6 +345,24 @@ class Application
      */
     private function createProcess()
     {
-        return $this->setProcess(new Process($this->getConfig()));
+        return $this->setProcess(new Process($this->getConfig(), $this->getLogger()));
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @return $this
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        return $this;
     }
 }

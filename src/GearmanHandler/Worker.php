@@ -2,6 +2,7 @@
 namespace GearmanHandler;
 
 use GearmanClient;
+use Psr\Log\LoggerInterface;
 
 class Worker
 {
@@ -20,11 +21,20 @@ class Worker
     private $config;
 
     /**
-     * @param Config $config
+     * @var LoggerInterface
      */
-    public function __construct(Config $config)
+    private $logger;
+
+    /**
+     * @param Config $config
+     * @param LoggerInterface|null $logger
+     */
+    public function __construct(Config $config, LoggerInterface $logger = null)
     {
         $this->setConfig($config);
+        if (null !== $logger) {
+            $this->setLogger($logger);
+        }
     }
 
     /**
@@ -35,16 +45,25 @@ class Worker
      */
     public function background($name, $data = null, $priority = self::NORMAL, $unique = null)
     {
+        if (null !== $this->logger) {
+            $this->logger->debug("Execute background job \"{$name}\" to GearmanClient");
+        }
+
+        $jobHandle = null;
         switch ($priority) {
             case self::NORMAL:
-                $this->getClient()->doBackground($name, self::serialize($data), $unique);
+                $jobHandle = $this->getClient()->doBackground($name, self::serialize($data), $unique);
                 break;
             case self::LOW:
-                $this->getClient()->doLowBackground($name, self::serialize($data), $unique);
+                $jobHandle = $this->getClient()->doLowBackground($name, self::serialize($data), $unique);
                 break;
             case self::HIGH:
-                $this->getClient()->doHighBackground($name, self::serialize($data), $unique);
+                $jobHandle = $this->getClient()->doHighBackground($name, self::serialize($data), $unique);
                 break;
+        }
+
+        if (null !== $this->logger) {
+            $this->logger->debug("Job handle for \"{$name}\" is {$jobHandle}");
         }
     }
 
@@ -56,16 +75,25 @@ class Worker
      */
     public function execute($name, $data = null, $priority = self::NORMAL, $unique = null)
     {
+        if (null !== $this->logger) {
+            $this->logger->debug("Execute job \"{$name}\" to GearmanClient");
+        }
+
+        $jobHandle = null;
         switch ($priority) {
             case self::NORMAL:
-                $this->getClient()->doNormal($name, self::serialize($data), $unique);
+                $jobHandle = $this->getClient()->doNormal($name, self::serialize($data), $unique);
                 break;
             case self::LOW:
-                $this->getClient()->doLow($name, self::serialize($data), $unique);
+                $jobHandle = $this->getClient()->doLow($name, self::serialize($data), $unique);
                 break;
             case self::HIGH:
-                $this->getClient()->doHigh($name, self::serialize($data), $unique);
+                $jobHandle = $this->getClient()->doHigh($name, self::serialize($data), $unique);
                 break;
+        }
+
+        if (null !== $this->logger) {
+            $this->logger->debug("Job handle for \"{$name}\" is {$jobHandle}");
         }
     }
 
@@ -84,6 +112,10 @@ class Worker
      */
     public function setClient(GearmanClient $client = null)
     {
+        if (null !== $this->logger) {
+            $this->logger->debug("Added GearmanClient server {$this->getConfig()->getGearmanHost()}:{$this->getConfig()->getGearmanPort()}");
+        }
+
         $client->addServer($this->getConfig()->getGearmanHost(), $this->getConfig()->getGearmanPort());
         $this->client = $client;
         return $this;
@@ -124,5 +156,23 @@ class Worker
     public function getConfig()
     {
         return $this->config;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     * @return $this
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        return $this;
     }
 }
