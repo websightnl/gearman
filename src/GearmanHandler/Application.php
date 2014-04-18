@@ -172,9 +172,6 @@ class Application
     {
         $this->worker = new GearmanWorker();
         $this->worker->addServer($this->getConfig()->getGearmanHost(), $this->getConfig()->getGearmanPort());
-        if (null !== $this->logger) {
-            $this->logger->info("Added GearmanWorker server {$this->getConfig()->getGearmanHost()}:{$this->getConfig()->getGearmanPort()}");
-        }
         return $this;
     }
 
@@ -227,9 +224,6 @@ class Application
     {
         $this->jobs[] = $job;
         $this->worker->addFunction($job->getName(), [$job, 'execute']);
-        if (null !== $this->logger) {
-            $this->logger->debug("Added GearmanWorker function {$job->getName()}");
-        }
         return $this;
     }
 
