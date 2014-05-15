@@ -67,6 +67,8 @@ class Process
         if (file_exists($file = $this->getPidFile()) && is_writable($file)) {
             unlink($file);
         }
+
+        $this->release();
     }
 
     /**
@@ -105,12 +107,16 @@ class Process
             $fp = $this->lock;
         }
 
-        flock($fp, LOCK_UN);
-        fclose($fp);
+        if (is_resource($fp)) {
+            flock($fp, LOCK_UN);
+            fclose($fp);
 
-        if (file_exists($file = $this->getLockFile()) && is_writable($file)) {
-            unlink($file);
+            if (file_exists($file = $this->getLockFile()) && is_writable($file)) {
+                unlink($file);
+            }
         }
+
+        $this->lock = null;
     }
 
     /**
