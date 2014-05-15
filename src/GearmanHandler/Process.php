@@ -19,6 +19,11 @@ class Process
     private $logger;
 
     /**
+     * @var resource
+     */
+    private $lock;
+
+    /**
      * @param Config $config
      * @param LoggerInterface $logger
      */
@@ -83,17 +88,23 @@ class Process
         $fp = fopen($this->getLockFile(), "w+");
 
         if (flock($fp, LOCK_EX | LOCK_NB)) {
-            return $fp;
+            return $this->lock = $fp;
         }
 
         return false;
     }
 
     /**
-     * @param resource $fp
+     * @param resource|null $fp
      */
-    public function release($fp)
+    public function release($fp = null)
     {
+        if (null === $fp && null === $this->lock) {
+            return null;
+        } elseif (null === $fp) {
+            $fp = $this->lock;
+        }
+
         flock($fp, LOCK_UN);
         fclose($fp);
 
