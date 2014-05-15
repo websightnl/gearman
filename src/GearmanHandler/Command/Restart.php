@@ -8,12 +8,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use GearmanHandler\Process;
 use GearmanHandler\Config;
 
-class Start extends Command
+class Restart extends Command
 {
     protected function configure()
     {
-        $this->setName('start')
-            ->setDescription('Start the gearman workers daemon')
+        $this->setName('restart')
+            ->setDescription('Restart the gearman workers daemon')
             ->addOption('bootstrap', null, InputOption::VALUE_OPTIONAL)
             ->addOption('host', null, InputOption::VALUE_OPTIONAL)
             ->addOption('port', null, InputOption::VALUE_OPTIONAL)
@@ -27,6 +27,12 @@ class Start extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->write('Stoping gearman-handler: ');
+
+        (new Process(new Config))->stop();
+
+        $output->write('[ <fg=green>OK</fg=green> ]', true);
+
         $output->write('Starting gearman-handler: ');
 
         $config = new Config;

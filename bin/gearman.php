@@ -17,8 +17,10 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 use Symfony\Component\Console\Application;
 use GearmanHandler\Command\Start as StartCommand;
 use GearmanHandler\Command\Stop as StopCommand;
+use GearmanHandler\Command\Restart as RestartCommand;
 
 $application = new Application();
 $application->add(new StartCommand);
 $application->add(new StopCommand);
+$application->add(new RestartCommand);
 $application->run();
