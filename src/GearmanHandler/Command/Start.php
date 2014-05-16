@@ -10,6 +10,26 @@ use GearmanHandler\Config;
 
 class Start extends Command
 {
+    /**
+     * @var Process
+     */
+    private $process;
+
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @var callable
+     */
+    private $runtime;
+
+    /**
+     * @var bool
+     */
+    private $result = false;
+
     protected function configure()
     {
         $this->setName('start')
@@ -29,7 +49,7 @@ class Start extends Command
     {
         $output->write('Starting gearman-handler: ');
 
-        $config = new Config;
+        $config = $this->getConfig();
 
         if ($bootstrap = $input->getOption('bootstrap')) {
             $config->setBootstrap($bootstrap);
@@ -44,16 +64,102 @@ class Start extends Command
             $config->setBootstrap($user);
         }
 
-        $process = new Process($config);
+        $process = $this->getProcess();
         if ($process->isRunning()) {
             $output->write('[ <error>Failed: Process is already runnning</error> ]', true);
             return;
         }
 
-        if (is_file($bootstrap)) {
+        if (!empty($bootstrap) && is_file($bootstrap)) {
+            $this->setResult(true);
+            $output->write('[ <fg=green>OK</fg=green> ]', true);
             require_once $bootstrap;
+        } elseif (is_callable($this->getRuntime())) {
+            $this->setResult(true);
+            $output->write('[ <fg=green>OK</fg=green> ]', true);
+            $runtime = $this->getRuntime();
+            $runtime();
         }
+    }
 
-        $output->write('[ <fg=green>OK</fg=green> ]', true);
+    /**
+     * @return Config
+     */
+    public function getConfig()
+    {
+        if (null === $this->config) {
+            $this->setConfig(new Config);
+        }
+        return $this->config;
+    }
+
+    /**
+     * @param Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+        return $this;
+    }
+
+    /**
+     * @return Process
+     */
+    public function getProcess()
+    {
+        if (null === $this->process) {
+            $this->setProcess((new Process($this->getConfig())));
+        }
+        return $this->process;
+    }
+
+    /**
+     * @param Process $process
+     * @return $this
+     */
+    public function setProcess(Process $process)
+    {
+        if (null === $this->getConfig() && $process->getConfig() instanceof Config) {
+            $this->setConfig($process->getConfig());
+        }
+        $this->process = $process;
+        return $this;
+    }
+
+    /**
+     * @return callable
+     */
+    public function getRuntime()
+    {
+        return $this->runtime;
+    }
+
+    /**
+     * @param callable $runtime
+     * @return $this
+     */
+    public function setRuntime(callable $runtime)
+    {
+        $this->runtime = $runtime;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * @param bool $result
+     * @return $this
+     */
+    public function setResult($result)
+    {
+        $this->result = $result;
+        return $this;
     }
 }

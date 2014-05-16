@@ -10,6 +10,21 @@ use GearmanHandler\Config;
 
 class Restart extends Command
 {
+    /**
+     * @var Process
+     */
+    private $process;
+
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
+     * @var callable
+     */
+    private $runtime;
+
     protected function configure()
     {
         $this->setName('restart')
@@ -27,39 +42,93 @@ class Restart extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->write('Stoping gearman-handler: ');
+        $stop = new Stop();
+        $stop->setProcess($this->getProcess());
+        $stop->run($input, $output);
 
-        (new Process(new Config))->stop();
-
-        $output->write('[ <fg=green>OK</fg=green> ]', true);
-
-        $output->write('Starting gearman-handler: ');
-
-        $config = new Config;
-
-        if ($bootstrap = $input->getOption('bootstrap')) {
-            $config->setBootstrap($bootstrap);
-        }
-        if ($host = $input->getOption('host')) {
-            $config->setBootstrap($host);
-        }
-        if ($port = $input->getOption('port')) {
-            $config->setBootstrap($port);
-        }
-        if ($user = $input->getOption('user')) {
-            $config->setBootstrap($user);
+        if ($stop->getResult()) {
+            $process = $this->getProcess();
+            $int = 0;
+            while ($int < 1000) {
+                if (file_exists($process->getPidFile())) {
+                    usleep(1000);
+                    $int++;
+                } elseif (file_exists($process->getLockFile())) {
+                    $process->release();
+                    usleep(1000);
+                    $int++;
+                } else {
+                    $int = 1000;
+                }
+            }
         }
 
-        $process = new Process($config);
-        if ($process->isRunning()) {
-            $output->write('[ <error>Failed: Process is already runnning</error> ]', true);
-            return;
-        }
+        $start = new Start();
+        $start->setProcess($this->getProcess());
+        $start->setRuntime($this->getRuntime());
+        $start->run($input, $output);
+    }
 
-        if (is_file($bootstrap)) {
-            require_once $bootstrap;
+    /**
+     * @return Config
+     */
+    public function getConfig()
+    {
+        if (null === $this->config) {
+            $this->setConfig(new Config);
         }
+        return $this->config;
+    }
 
-        $output->write('[ <fg=green>OK</fg=green> ]', true);
+    /**
+     * @param Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+        return $this;
+    }
+
+    /**
+     * @return Process
+     */
+    public function getProcess()
+    {
+        if (null === $this->process) {
+            $this->setProcess((new Process($this->getConfig())));
+        }
+        return $this->process;
+    }
+
+    /**
+     * @param Process $process
+     * @return $this
+     */
+    public function setProcess(Process $process)
+    {
+        if (null === $this->getConfig() && $process->getConfig() instanceof Config) {
+            $this->setConfig($process->getConfig());
+        }
+        $this->process = $process;
+        return $this;
+    }
+
+    /**
+     * @return callable
+     */
+    public function getRuntime()
+    {
+        return $this->runtime;
+    }
+
+    /**
+     * @param callable $runtime
+     * @return $this
+     */
+    public function setRuntime(callable $runtime)
+    {
+        $this->runtime = $runtime;
+        return $this;
     }
 }
