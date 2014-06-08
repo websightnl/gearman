@@ -1,6 +1,8 @@
 <?php
 namespace GearmanHandler;
 
+use GearmanException;
+use GearmanHandler\Exception\GearmanWorkerConnectionException;
 use GearmanWorker;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory as Loop;
@@ -173,8 +175,12 @@ class Application
      */
     private function createWorker()
     {
-        $this->worker = new GearmanWorker();
-        $this->worker->addServer($this->getConfig()->getGearmanHost(), $this->getConfig()->getGearmanPort());
+        try {
+            $this->worker = new GearmanWorker();
+            $this->worker->addServer($this->getConfig()->getGearmanHost(), $this->getConfig()->getGearmanPort());
+        } catch (GearmanException $e) {
+            throw new GearmanWorkerConnectionException('Unable to connect to Gearman Server');
+        }
         return $this;
     }
 
