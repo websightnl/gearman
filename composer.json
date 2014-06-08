@@ -1,9 +1,9 @@
 {
-    "name": "gabrielbull/gearman-handler",
+    "name": "sinergi/gearman",
     "type": "library",
-    "description": "PHP Daemon for handling and managing Gearman Workers",
-    "keywords": ["Gearman", "Workers", "Daemon"],
-    "homepage": "https://github.com/gabrielbull/php-gearman-handler",
+    "description": "PHP library for dispatching, handling and managing Gearman Workers",
+    "keywords": ["Gearman", "Workers", "Daemon", "Jobs", "Tasks"],
+    "homepage": "https://github.com/sinergi/gearman",
     "license": "MIT",
     "authors": [
         {
@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "GearmanHandler\\": "src/GearmanHandler"
+            "Sinergi\\Gearman\\": "src/Gearman"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "GearmanHandler\\Tests\\": ["tests/GearmanHandler/Tests", "tests/GearmanHandler/Tests/_includes"]
+            "Sinergi\\Gearman\\Tests\\": ["tests/Gearman/Tests", "tests/Gearman/Tests/_includes"]
         }
     },
     "bin": ["bin/gearman", "bin/gearman.php"]

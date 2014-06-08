@@ -8,8 +8,8 @@
          stopOnFailure="false"
          syntaxCheck="false">
     <testsuites>
-        <testsuite name="GearmanHandler Test Suite">
-            <directory>./tests/GearmanHandler/</directory>
+        <testsuite name="Sinergi Gearman Test Suite">
+            <directory>./tests/Gearman/</directory>
         </testsuite>
     </testsuites>
 </phpunit>

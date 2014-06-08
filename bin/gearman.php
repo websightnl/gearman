@@ -15,9 +15,9 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 
 use Symfony\Component\Console\Application;
-use GearmanHandler\Command\StartCommand;
-use GearmanHandler\Command\StopCommand;
-use GearmanHandler\Command\RestartCommand;
+use Sinergi\Gearman\Command\StartCommand;
+use Sinergi\Gearman\Command\StopCommand;
+use Sinergi\Gearman\Command\RestartCommand;
 
 $application = new Application();
 $application->add(new StartCommand);
