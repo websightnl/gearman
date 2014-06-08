@@ -208,6 +208,18 @@ class Config implements Serializable
     }
 
     /**
+     * @param string $server
+     * @param int|null $port
+     * @return $this
+     */
+    public function setServer($server, $port = null)
+    {
+        $this->servers = [];
+        $this->addServer($server, $port);
+        return $this;
+    }
+
+    /**
      * @return Server[]
      */
     public function getServers()

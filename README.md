@@ -2,10 +2,14 @@ Gearman
 =======
 
 [![Build Status](https://travis-ci.org/sinergi/gearman.svg?branch=master)](https://travis-ci.org/sinergi/gearman)
+[![Latest Stable Version](https://poser.pugx.org/sinergi/gearman/v/stable.svg)](https://packagist.org/packages/sinergi/gearman) 
+[![Total Downloads](https://poser.pugx.org/sinergi/gearman/downloads.svg)](https://packagist.org/packages/sinergi/gearman) 
+[![Latest Unstable Version](https://poser.pugx.org/sinergi/gearman/v/unstable.svg)](https://packagist.org/packages/sinergi/gearman) 
+[![License](https://poser.pugx.org/sinergi/gearman/license.svg)](https://packagist.org/packages/sinergi/gearman)
 
 PHP library for dispatching, handling and managing Gearman Workers
 
-_**Todo:** Add support for tasks, only jobs are handled right now._
+_**Todo:** Add support for tasks, only jobs are handled right now._<br>
 _**Todo:** Tests are working but could cover more._
 
 ## Config
@@ -35,10 +39,10 @@ $config = new Config([
 
 #### Paramaters
 
- * __string__ ``bootstrap`` Path to the bootstrap file
- * __Server[]__ ``servers`` Collection of Gearman Servers
- * __string__ ``user`` The user under which the Gearman Workers will run
- * __bool__ ``autoUpdate`` Use for development only, automatically update workers before doing a job or task 
+ * ``string bootstrap`` Path to the bootstrap file
+ * ``array servers`` Collection of Gearman Servers
+ * ``string user`` The user under which the Gearman Workers will run
+ * ``bool autoUpdate`` Use for __development only__, automatically update workers before doing a job or task 
 
 ## Boostrap
 
@@ -67,7 +71,7 @@ class JobExample implements JobInterface
 
     public function execute(GearmanJob $job)
     {
-        // To something
+        // Do something
     }
 }
 ```

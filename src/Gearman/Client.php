@@ -77,7 +77,7 @@ class Client
      */
     public function getClient()
     {
-        if (!$this->hasServers = true) {
+        if (!$this->hasServers) {
             $this->addServers();
         }
         return $this->client;
