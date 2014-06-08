@@ -1,14 +1,15 @@
 <?php
 namespace Sinergi\Gearman;
 
+use Closure;
+use Exception;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory as Loop;
-use React\EventLoop\StreamSelectLoop;
 use React\EventLoop\LibEventLoop;
-use Exception;
-use Closure;
+use React\EventLoop\StreamSelectLoop;
+use Serializable;
 
-class Application
+class Application implements Serializable
 {
     /**
      * @var Config
@@ -90,9 +91,19 @@ class Application
         }
     }
 
+    public function restart()
+    {
+        $serialized = serialize($this);
+        $this->changeUser();
+        $file = realpath(__DIR__ . "/../../bin/gearman_restart");
+        if ($file) {
+            pcntl_exec($file, ['serialized' => $serialized]);
+        }
+    }
+
     /**
      * @param bool $fork
-     * @throws \Exception
+     * @throws Exception
      */
     public function run($fork = true)
     {
@@ -105,18 +116,7 @@ class Application
             unlink($lockFile);
         }
 
-        $user = $this->getConfig()->getUser();
-        if ($user) {
-            $user = posix_getpwnam($user);
-            posix_setgid($user['gid']);
-            posix_setuid($user['uid']);
-            if (posix_geteuid() != $user['uid']) {
-                if (null !== $this->logger) {
-                    $this->logger->error("Unable to change user to {$user['uid']}");
-                }
-                throw new Exception("Unable to change user to {$user['uid']}");
-            }
-        }
+        $this->changeUser();
 
         if ($fork) {
             $pid = pcntl_fork();
@@ -126,8 +126,8 @@ class Application
             $this->getProcess()->setPid(posix_getpid());
 
             if (isset($pid) && $pid !== -1 && !$pid) {
-                $parantPid = posix_getppid();
-                if ($parantPid) {
+                $parentPid = posix_getppid();
+                if ($parentPid) {
                     posix_kill(posix_getppid(), SIGUSR2);
                 }
             }
@@ -150,6 +150,28 @@ class Application
             while ($wait) {
                 pcntl_waitpid($pid, $status, WNOHANG);
                 pcntl_signal_dispatch();
+            }
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function changeUser()
+    {
+        $user = $this->getConfig()->getUser();
+        if ($user) {
+            $user = posix_getpwnam($user);
+            if (posix_geteuid() !== (int)$user['uid']) {
+                posix_setgid($user['gid']);
+                posix_setuid($user['uid']);
+                if (posix_geteuid() !== (int)$user['uid']) {
+                    $message = "Unable to change user to {$user['uid']}";
+                    if (null !== $this->logger) {
+                        $this->logger->error($message);
+                    }
+                    throw new Exception($message);
+                }
             }
         }
     }
@@ -233,10 +255,10 @@ class Application
      */
     public function add(JobInterface $job)
     {
-        $worker = $this->getWorker()->getWorker();
+        $worker = $this->getWorker();
         $this->jobs[] = $job;
         $root = $this;
-        $worker->addFunction($job->getName(), function(\GearmanJob $gearmanJob) use ($root, $job) {
+        $worker->addFunction($job->getName(), function (\GearmanJob $gearmanJob) use ($root, $job) {
             return $root->executeJob($job, $gearmanJob);
         });
         return $this;
@@ -365,5 +387,56 @@ class Application
     {
         $this->logger = $logger;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize([
+            'config' => $this->getConfig(),
+            'process' => $this->getProcess(),
+            //'callbacks' => $this->callbacks, fixme cannot serialize closure
+            'worker' => $this->getWorker(),
+            'jobs' => $this->jobs,
+            'logger' => $this->getLogger()
+        ]);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        if (isset($data['config'])) {
+            $this->setConfig($data['config']);
+        }
+        if (isset($data['logger'])) {
+            $this->setLogger($data['logger']);
+        }
+        if (isset($data['callbacks'])) {
+            //$this->callbacks = $data['callbacks']; fixme cannot serialize closure
+        }
+
+        $process = new Process($this->getConfig(), $this->getLogger());
+        $this->setProcess($process);
+
+        if (isset($data['worker'])) {
+            /** @var Worker $worker */
+            $worker = $data['worker'];
+            $worker->setConfig($this->getConfig());
+            $worker->setLogger($this->getLogger());
+        } else {
+            $worker = new Worker($this->getConfig(), $this->getLogger());
+        }
+        $this->setWorker($worker);
+
+        if (isset($data['jobs'])) {
+            foreach ($data['jobs'] as $job) {
+                $this->add($job);
+            }
+        }
     }
 }

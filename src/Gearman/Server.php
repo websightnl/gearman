@@ -1,7 +1,9 @@
 <?php
 namespace Sinergi\Gearman;
 
-class Server
+use Serializable;
+
+class Server implements Serializable
 {
     /**
      * @var string
@@ -61,5 +63,30 @@ class Server
     {
         $this->port = $port;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize([
+            'host' => $this->getHost(),
+            'port' => $this->getPort(),
+        ]);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        if (isset($data['host'])) {
+            $this->setHost($data['host']);
+        }
+        if (isset($data['port'])) {
+            $this->setPort($data['port']);
+        }
     }
 }

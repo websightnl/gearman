@@ -1,9 +1,10 @@
 <?php
 namespace Sinergi\Gearman;
 
+use Serializable;
 use InvalidArgumentException;
 
-class Config
+class Config implements Serializable
 {
     const SERVER_PORT_SEPARATOR = ':';
     const SERVERS_SEPARATOR = ',';
@@ -348,5 +349,30 @@ class Config
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize([
+            'bootstrap' => $this->getBootstrap(),
+            'servers' => $this->getServers(),
+            'workerLifetime' => $this->getWorkerLifetime(),
+            'autoUpdate' => $this->getAutoUpdate(),
+            'user' => $this->getUser()
+        ]);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        $this->servers = $data['servers'];
+        unset($data['servers']);
+        $this->set($data);
     }
 }

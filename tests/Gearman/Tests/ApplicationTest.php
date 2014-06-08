@@ -47,4 +47,11 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
 
         $process->stop();
     }
+
+    public function testApplicationRestart()
+    {
+        $application = new Application($this->config);
+        $application->add(new MockJob());
+        $application->restart();
+    }
 }

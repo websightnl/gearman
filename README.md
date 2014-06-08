@@ -6,6 +6,7 @@ Gearman
 PHP library for dispatching, handling and managing Gearman Workers
 
 _**Todo:** Add support for tasks, only jobs are handled right now._
+_**Todo:** Tests are working but could cover more._
 
 ## Config
 

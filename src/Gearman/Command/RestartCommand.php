@@ -42,7 +42,7 @@ class RestartCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $stop = new Stop();
+        $stop = new StopCommand();
         $stop->setProcess($this->getProcess());
         $stop->run($input, $output);
 
@@ -63,7 +63,7 @@ class RestartCommand extends Command
             }
         }
 
-        $start = new Start();
+        $start = new StartCommand();
         $start->setProcess($this->getProcess());
         $start->setRuntime($this->getRuntime());
         $start->run($input, $output);

@@ -1,12 +1,13 @@
 <?php
 namespace Sinergi\Gearman;
 
+use Serializable;
 use GearmanException;
 use GearmanWorker;
 use Psr\Log\LoggerInterface;
 use Sinergi\Gearman\Exception\ServerConnectionException;
 
-class Worker
+class Worker implements Serializable
 {
     /**
      * @var GearmanWorker
@@ -24,6 +25,11 @@ class Worker
     private $logger;
 
     /**
+     * @var array
+     */
+    private $functions = [];
+
+    /**
      * @param Config $config
      * @param null|LoggerInterface $logger
      * @throws ServerConnectionException
@@ -32,9 +38,15 @@ class Worker
     {
         $this->setConfig($config);
         if (null !== $logger) {
-            $this->logger = $logger;
+            $this->setLogger($logger);
         }
+    }
 
+    /**
+     * @throws Exception\ServerConnectionException
+     */
+    private function createWorker()
+    {
         $this->worker = new GearmanWorker();
         $servers = $this->getConfig()->getServers();
         $exceptions = [];
@@ -55,6 +67,19 @@ class Worker
                 throw new ServerConnectionException($exception);
             }
         }
+    }
+
+    /**
+     * @param string $functionName
+     * @param callback $function
+     * @param null|mixed $context
+     * @param null|int $timeout
+     * @return bool
+     */
+    public function addFunction($functionName, $function, $context = null, $timeout = null)
+    {
+        $this->functions[] = [$functionName, $function, $context, $timeout];
+        return $this->getWorker()->addFunction($functionName, $function, $context, $timeout);
     }
 
     /**
@@ -80,6 +105,9 @@ class Worker
      */
     public function getWorker()
     {
+        if (null === $this->worker) {
+            $this->createWorker();
+        }
         return $this->worker;
     }
 
@@ -91,5 +119,39 @@ class Worker
     {
         $this->worker = $worker;
         return $this;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
+    }
+
+    /**
+     * @param null|LoggerInterface $logger
+     * @return $this
+     */
+    public function setLogger(LoggerInterface $logger = null)
+    {
+        $this->logger = $logger;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize([]);
+    }
+
+    /**
+     * @param string $serialized
+     */
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
     }
 }
