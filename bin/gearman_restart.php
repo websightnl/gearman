@@ -19,11 +19,23 @@ use Sinergi\Gearman\Process;
 
 if (isset($_SERVER['argv'][1])) {
     $serialized = $_SERVER['argv'][1];
-    /** @var Application $application */
-    $application = unserialize($serialized);
+
+    if (is_file($serialized)) {
+        $application = file_get_contents($serialized);
+        if (!empty($application)) {
+            $application = unserialize($application);
+        }
+        unlink($serialized);
+    }
+
+    if (!$application instanceof Application) {
+        $application = new Application();
+    }
 
     $process = $application->getProcess();
-    $process->stop();
+
+    unlink($process->getPidFile());
+    $process->release();
 
     $int = 0;
     while ($int < 1000) {
@@ -45,6 +57,6 @@ if (isset($_SERVER['argv'][1])) {
     if (isset($bootstrap) && is_file($bootstrap)) {
         require_once $bootstrap;
     } else {
-        $application->run();
+        $application->run(false);
     }
 }

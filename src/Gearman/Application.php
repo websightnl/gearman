@@ -58,9 +58,9 @@ class Application implements Serializable
     private $logger;
 
     /**
-     * @var array
+     * @var bool
      */
-    private $currentJob;
+    private $isAllowingJob = false;
 
     /**
      * @param Config $config
@@ -100,10 +100,24 @@ class Application implements Serializable
     public function restart()
     {
         $serialized = serialize($this);
-        $this->changeUser();
         $file = realpath(__DIR__ . "/../../bin/gearman_restart");
-        if ($file) {
-            pcntl_exec($file, ['serialized' => $serialized]);
+
+        $serializedFile = sys_get_temp_dir() . '/gearman_restart_' . uniqid();
+        file_put_contents($serializedFile, $serialized);
+
+        if ($file && is_executable($file)) {
+            pcntl_exec($file, ['serialized' => $serializedFile]);
+            exit;
+        } elseif ($file) {
+            $dir = dirname($file);
+            $content = file_get_contents($dir . '/gearman_restart_template');
+            $content = str_replace('%path', $dir . '/gearman_restart.php', $content);
+            $newFile = sys_get_temp_dir() . '/gearman_restart_' . uniqid();
+            file_put_contents($newFile, $content);
+            chmod($newFile, 0755);
+            pcntl_exec($newFile, ['serialized' => $serializedFile]);
+            unlink($newFile);
+            exit;
         }
     }
 
@@ -228,26 +242,11 @@ class Application implements Serializable
      */
     public function executeJob(JobInterface $job, GearmanJob $gearmanJob)
     {
-        if ($this->getConfig()->getAutoUpdate()) {
-            $this->currentJob = [$job, $gearmanJob];
+        if ($this->getConfig()->getAutoUpdate() && !$this->isAllowingJob) {
             $this->restart();
             return null;
         }
-        if (null !== $this->logger) {
-            $this->logger->info("Executing job {$job->getName()}");
-        }
-        return $job->execute($gearmanJob);
-    }
-
-    /**
-     * @return mixed
-     */
-    private function executeCurrentJob()
-    {
-        /** @var JobInterface $job */
-        /** @var GearmanJob $gearmanJob */
-        list($job, $gearmanJob) = $this->currentJob;
-        $this->currentJob = null;
+        $this->isAllowingJob = false;
         if (null !== $this->logger) {
             $this->logger->info("Executing job {$job->getName()}");
         }
@@ -427,7 +426,7 @@ class Application implements Serializable
             'worker' => $this->getWorker(),
             'jobs' => $this->jobs,
             'logger' => $this->getLogger(),
-            'currentJob' => $this->currentJob
+            'isAllowingJob' => true
         ]);
     }
 
@@ -437,10 +436,11 @@ class Application implements Serializable
     public function unserialize($serialized)
     {
         $data = unserialize($serialized);
+
         if (isset($data['config'])) {
             $this->setConfig($data['config']);
         }
-        if (isset($data['logger'])) {
+        if (isset($data['logger']) && $data['logger'] instanceof LoggerInterface) {
             $this->setLogger($data['logger']);
         }
         if (isset($data['callbacks'])) {
@@ -466,9 +466,8 @@ class Application implements Serializable
             }
         }
 
-        if (isset($data['currentJob'])) {
-            $this->currentJob = $data['currentJob'];
-            $this->executeCurrentJob();
+        if (isset($data['isAllowingJob'])) {
+            $this->isAllowingJob = $data['isAllowingJob'];
         }
     }
 }
