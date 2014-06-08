@@ -1,6 +1,7 @@
 <?php
 namespace Sinergi\Gearman;
 
+use GearmanJob;
 use Closure;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -55,6 +56,11 @@ class Application implements Serializable
      * @var LoggerInterface
      */
     private $logger;
+
+    /**
+     * @var array
+     */
+    private $currentJob;
 
     /**
      * @param Config $config
@@ -217,11 +223,31 @@ class Application implements Serializable
 
     /**
      * @param JobInterface $job
-     * @param \GearmanJob $gearmanJob
+     * @param GearmanJob $gearmanJob
      * @return mixed
      */
-    public function executeJob(JobInterface $job, \GearmanJob $gearmanJob)
+    public function executeJob(JobInterface $job, GearmanJob $gearmanJob)
     {
+        if ($this->getConfig()->getAutoUpdate()) {
+            $this->currentJob = [$job, $gearmanJob];
+            $this->restart();
+            return null;
+        }
+        if (null !== $this->logger) {
+            $this->logger->info("Executing job {$job->getName()}");
+        }
+        return $job->execute($gearmanJob);
+    }
+
+    /**
+     * @return mixed
+     */
+    private function executeCurrentJob()
+    {
+        /** @var JobInterface $job */
+        /** @var GearmanJob $gearmanJob */
+        list($job, $gearmanJob) = $this->currentJob;
+        $this->currentJob = null;
         if (null !== $this->logger) {
             $this->logger->info("Executing job {$job->getName()}");
         }
@@ -400,7 +426,8 @@ class Application implements Serializable
             //'callbacks' => $this->callbacks, fixme cannot serialize closure
             'worker' => $this->getWorker(),
             'jobs' => $this->jobs,
-            'logger' => $this->getLogger()
+            'logger' => $this->getLogger(),
+            'currentJob' => $this->currentJob
         ]);
     }
 
@@ -437,6 +464,11 @@ class Application implements Serializable
             foreach ($data['jobs'] as $job) {
                 $this->add($job);
             }
+        }
+
+        if (isset($data['currentJob'])) {
+            $this->currentJob = $data['currentJob'];
+            $this->executeCurrentJob();
         }
     }
 }
