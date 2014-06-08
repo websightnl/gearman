@@ -12,6 +12,23 @@ PHP library for dispatching, handling and managing Gearman Workers
 _**Todo:** Add support for tasks, only jobs are handled right now._<br>
 _**Todo:** Tests are working but could cover more._
 
+
+## Requirements
+
+This library uses PHP 5.4+ and Gearman 1.0+.
+
+## Installation
+
+It is recommended that you install the Gearman library [through composer](http://getcomposer.org/). To do so, add the following lines to your ``composer.json`` file.
+
+```json
+{
+    "require": {
+       "sinergi/gearman": "dev-master"
+    }
+}
+```
+
 ## Config
 
 The library uses a Config class to share configuration between classes.
