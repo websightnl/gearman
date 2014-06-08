@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use GearmanHandler\Process;
 use GearmanHandler\Config;
 
-class Restart extends Command
+class StartCommand extends Command
 {
     /**
      * @var Process
@@ -25,10 +25,15 @@ class Restart extends Command
      */
     private $runtime;
 
+    /**
+     * @var bool
+     */
+    private $result = false;
+
     protected function configure()
     {
-        $this->setName('restart')
-            ->setDescription('Restart the gearman workers daemon')
+        $this->setName('start')
+            ->setDescription('Start the gearman workers daemon')
             ->addOption('bootstrap', null, InputOption::VALUE_OPTIONAL)
             ->addOption('host', null, InputOption::VALUE_OPTIONAL)
             ->addOption('port', null, InputOption::VALUE_OPTIONAL)
@@ -42,31 +47,39 @@ class Restart extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $stop = new Stop();
-        $stop->setProcess($this->getProcess());
-        $stop->run($input, $output);
+        $output->write('Starting gearman-handler: ');
 
-        if ($stop->getResult()) {
-            $process = $this->getProcess();
-            $int = 0;
-            while ($int < 1000) {
-                if (file_exists($process->getPidFile())) {
-                    usleep(1000);
-                    $int++;
-                } elseif (file_exists($process->getLockFile())) {
-                    $process->release();
-                    usleep(1000);
-                    $int++;
-                } else {
-                    $int = 1000;
-                }
-            }
+        $config = $this->getConfig();
+
+        if ($bootstrap = $input->getOption('bootstrap')) {
+            $config->setBootstrap($bootstrap);
+        }
+        if ($host = $input->getOption('host')) {
+            $config->setBootstrap($host);
+        }
+        if ($port = $input->getOption('port')) {
+            $config->setBootstrap($port);
+        }
+        if ($user = $input->getOption('user')) {
+            $config->setBootstrap($user);
         }
 
-        $start = new Start();
-        $start->setProcess($this->getProcess());
-        $start->setRuntime($this->getRuntime());
-        $start->run($input, $output);
+        $process = $this->getProcess();
+        if ($process->isRunning()) {
+            $output->write('[ <error>Failed: Process is already runnning</error> ]', true);
+            return;
+        }
+
+        if (!empty($bootstrap) && is_file($bootstrap)) {
+            $this->setResult(true);
+            $output->write('[ <fg=green>OK</fg=green> ]', true);
+            require_once $bootstrap;
+        } elseif (is_callable($this->getRuntime())) {
+            $this->setResult(true);
+            $output->write('[ <fg=green>OK</fg=green> ]', true);
+            $runtime = $this->getRuntime();
+            $runtime();
+        }
     }
 
     /**
@@ -129,6 +142,24 @@ class Restart extends Command
     public function setRuntime(callable $runtime)
     {
         $this->runtime = $runtime;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * @param bool $result
+     * @return $this
+     */
+    public function setResult($result)
+    {
+        $this->result = $result;
         return $this;
     }
 }

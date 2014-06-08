@@ -1,9 +1,9 @@
 <?php
-namespace GearmanHandler\Tests\Commands;
+namespace GearmanHandler\Tests\Command;
 
 use PHPUnit_Framework_TestCase;
 
-class StopTest extends PHPUnit_Framework_TestCase
+class StopCommandTest extends PHPUnit_Framework_TestCase
 {
     public function testStop()
     {

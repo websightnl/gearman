@@ -1,12 +1,12 @@
 <?php
-namespace GearmanHandler\Tests\Commands;
+namespace GearmanHandler\Tests\Command;
 
 use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use GearmanHandler\Command\Start as StartCommand;
+use GearmanHandler\Command\StartCommand;
 
-class StartTest extends PHPUnit_Framework_TestCase
+class StartCommandTest extends PHPUnit_Framework_TestCase
 {
     public function testExecute()
     {

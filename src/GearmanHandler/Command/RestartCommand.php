@@ -1,13 +1,14 @@
 <?php
 namespace GearmanHandler\Command;
 
-use GearmanHandler\Config;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use GearmanHandler\Process;
+use GearmanHandler\Config;
 
-class Stop extends Command
+class RestartCommand extends Command
 {
     /**
      * @var Process
@@ -20,14 +21,18 @@ class Stop extends Command
     private $config;
 
     /**
-     * @var bool
+     * @var callable
      */
-    private $result = false;
+    private $runtime;
 
     protected function configure()
     {
-        $this->setName('stop')
-            ->setDescription('Stop the gearman workers daemon');
+        $this->setName('restart')
+            ->setDescription('Restart the gearman workers daemon')
+            ->addOption('bootstrap', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('host', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('port', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('user', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -37,17 +42,31 @@ class Stop extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->write('Stoping gearman-handler: ');
+        $stop = new Stop();
+        $stop->setProcess($this->getProcess());
+        $stop->run($input, $output);
 
-        $process = $this->getProcess();
-
-        if ($process->isRunning()) {
-            $this->setResult(true);
-            $output->write('[ <fg=green>OK</fg=green> ]', true);
-        } else {
-            $output->write('[ <fg=red>FAILED</fg=red> ]', true);
+        if ($stop->getResult()) {
+            $process = $this->getProcess();
+            $int = 0;
+            while ($int < 1000) {
+                if (file_exists($process->getPidFile())) {
+                    usleep(1000);
+                    $int++;
+                } elseif (file_exists($process->getLockFile())) {
+                    $process->release();
+                    usleep(1000);
+                    $int++;
+                } else {
+                    $int = 1000;
+                }
+            }
         }
-        $process->stop();
+
+        $start = new Start();
+        $start->setProcess($this->getProcess());
+        $start->setRuntime($this->getRuntime());
+        $start->run($input, $output);
     }
 
     /**
@@ -96,20 +115,20 @@ class Stop extends Command
     }
 
     /**
-     * @return bool
+     * @return callable
      */
-    public function getResult()
+    public function getRuntime()
     {
-        return $this->result;
+        return $this->runtime;
     }
 
     /**
-     * @param bool $result
+     * @param callable $runtime
      * @return $this
      */
-    public function setResult($result)
+    public function setRuntime(callable $runtime)
     {
-        $this->result = $result;
+        $this->runtime = $runtime;
         return $this;
     }
 }
