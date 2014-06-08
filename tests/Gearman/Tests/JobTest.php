@@ -3,8 +3,8 @@ namespace Sinergi\Gearman\Tests;
 
 use Sinergi\Gearman\Application;
 use Sinergi\Gearman\Config;
-use Sinergi\Gearman\Tests\Jobs\MockJob;
-use Sinergi\Gearman\Tests\Jobs\CreateFile;
+use Sinergi\Gearman\Tests\Job\MockJob;
+use Sinergi\Gearman\Tests\Job\CreateFile;
 use PHPUnit_Framework_TestCase;
 
 class JobTest extends PHPUnit_Framework_TestCase
@@ -39,7 +39,7 @@ class JobTest extends PHPUnit_Framework_TestCase
         $workers = $application->getJobs();
 
         $this->assertEquals(2, count($workers));
-        $this->assertInstanceOf('Sinergi\Gearman\Tests\Jobs\MockJob', $workers[0]);
-        $this->assertInstanceOf('Sinergi\Gearman\Tests\Jobs\CreateFile', $workers[1]);
+        $this->assertInstanceOf('Sinergi\Gearman\Tests\Job\MockJob', $workers[0]);
+        $this->assertInstanceOf('Sinergi\Gearman\Tests\Job\CreateFile', $workers[1]);
     }
 }

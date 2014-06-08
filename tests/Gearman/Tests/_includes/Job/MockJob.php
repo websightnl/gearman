@@ -1,5 +1,5 @@
 <?php
-namespace Sinergi\Gearman\Tests\Jobs;
+namespace Sinergi\Gearman\Tests\Job;
 
 use Sinergi\Gearman\JobInterface;
 use GearmanJob;
