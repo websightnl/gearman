@@ -4,7 +4,7 @@ namespace Sinergi\Gearman;
 use GearmanException;
 use GearmanClient;
 use Psr\Log\LoggerInterface;
-use GearmanHandler\Exception\ServerConnectionException;
+use Sinergi\Gearman\Exception\ServerConnectionException;
 
 class Client
 {
@@ -56,7 +56,9 @@ class Client
                 $client->addServer($server->getHost(), $server->getPort());
             } catch (GearmanException $e) {
                 $message = 'Unable to connect to Gearman Server ' . $server->getHost() . ':' . $server->getPort();
-                $this->logger->error($message);
+                if (null !== $this->logger) {
+                    $this->logger->error($message);
+                }
                 $exceptions[] = $message;
             }
         }

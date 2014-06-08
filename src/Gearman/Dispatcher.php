@@ -64,7 +64,9 @@ class Dispatcher
         }
 
         if ($client->returnCode() !== GEARMAN_SUCCESS) {
-            $this->logger->error("Bad return code");
+            if (null !== $this->logger) {
+                $this->logger->error("Bad return code");
+            }
         }
 
         if (null !== $this->logger) {
@@ -101,7 +103,9 @@ class Dispatcher
         }
 
         if ($client->returnCode() !== GEARMAN_SUCCESS) {
-            $this->logger->error("Bad return code");
+            if (null !== $this->logger) {
+                $this->logger->error("Bad return code");
+            }
         }
 
         if (null !== $this->logger) {

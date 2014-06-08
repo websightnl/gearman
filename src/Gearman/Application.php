@@ -1,9 +1,6 @@
 <?php
 namespace Sinergi\Gearman;
 
-use GearmanException;
-use Sinergi\Gearman\Exception\ServerConnectionException;
-use GearmanWorker;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory as Loop;
 use React\EventLoop\StreamSelectLoop;
@@ -44,7 +41,7 @@ class Application
     private $kill = false;
 
     /**
-     * @var GearmanWorker
+     * @var Worker
      */
     private $worker;
 
@@ -81,7 +78,6 @@ class Application
         if ($loop instanceof StreamSelectLoop || $loop instanceof StreamSelectLoop) {
             $this->setLoop($loop);
         }
-        $this->createWorker();
     }
 
     public function __destruct()
@@ -172,38 +168,10 @@ class Application
 
     /**
      * @return $this
-     * @throws ServerConnectionException
-     */
-    private function createWorker()
-    {
-        $this->worker = new GearmanWorker();
-        $servers = $this->getConfig()->getServers();
-        $exceptions = [];
-        foreach ($servers as $server) {
-            try {
-                $this->worker->addServer($server->getHost(), $server->getPort());
-            } catch (GearmanException $e) {
-                $message = 'Unable to connect to Gearman Server ' . $server->getHost() . ':' . $server->getPort();
-                $this->logger->error($message);
-                $exceptions[] = $message;
-            }
-        }
-
-        if (count($exceptions)) {
-            foreach ($exceptions as $exception) {
-                throw new ServerConnectionException($exception);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return $this
      */
     private function createLoop()
     {
-        $worker = $this->worker;
+        $worker = $this->getWorker()->getWorker();
         $worker->setTimeout(10);
 
         $callbacks = $this->getCallbacks();
@@ -226,28 +194,6 @@ class Application
     }
 
     /**
-     * @return array
-     */
-    public function getJobs()
-    {
-        return $this->jobs;
-    }
-
-    /**
-     * @param JobInterface $job
-     * @return $this
-     */
-    public function add(JobInterface $job)
-    {
-        $this->jobs[] = $job;
-        $root = $this;
-        $this->worker->addFunction($job->getName(), function(\GearmanJob $gearmanJob) use ($root, $job) {
-            return $root->executeJob($job, $gearmanJob);
-        });
-        return $this;
-    }
-
-    /**
      * @param JobInterface $job
      * @param \GearmanJob $gearmanJob
      * @return mixed
@@ -258,6 +204,50 @@ class Application
             $this->logger->info("Executing job {$job->getName()}");
         }
         return $job->execute($gearmanJob);
+    }
+
+    /**
+     * @return Worker
+     */
+    public function getWorker()
+    {
+        if (null === $this->worker) {
+            $this->setWorker(new Worker($this->getConfig(), $this->getLogger()));
+        }
+        return $this->worker;
+    }
+
+    /**
+     * @param Worker $worker
+     * @return $this
+     */
+    public function setWorker(Worker $worker)
+    {
+        $this->worker = $worker;
+        return $this;
+    }
+
+    /**
+     * @param JobInterface $job
+     * @return $this
+     */
+    public function add(JobInterface $job)
+    {
+        $worker = $this->getWorker()->getWorker();
+        $this->jobs[] = $job;
+        $root = $this;
+        $worker->addFunction($job->getName(), function(\GearmanJob $gearmanJob) use ($root, $job) {
+            return $root->executeJob($job, $gearmanJob);
+        });
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getJobs()
+    {
+        return $this->jobs;
     }
 
     /**
@@ -333,17 +323,9 @@ class Application
     public function getConfig()
     {
         if (null === $this->config) {
-            $this->createConfig();
+            $this->setConfig(new Config);
         }
         return $this->config;
-    }
-
-    /**
-     * @return $this
-     */
-    private function createConfig()
-    {
-        return $this->setConfig(new Config);
     }
 
     /**
@@ -362,17 +344,9 @@ class Application
     public function getProcess()
     {
         if (null === $this->process) {
-            $this->createProcess();
+            $this->setProcess(new Process($this->getConfig(), $this->getLogger()));
         }
         return $this->process;
-    }
-
-    /**
-     * @return $this
-     */
-    private function createProcess()
-    {
-        return $this->setProcess(new Process($this->getConfig(), $this->getLogger()));
     }
 
     /**

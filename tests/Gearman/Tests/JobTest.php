@@ -4,8 +4,6 @@ namespace Sinergi\Gearman\Tests;
 use Sinergi\Gearman\Application;
 use Sinergi\Gearman\Config;
 use Sinergi\Gearman\Tests\Jobs\MockJob;
-use Sinergi\Gearman\Worker;
-use Sinergi\Gearman\Process;
 use Sinergi\Gearman\Tests\Jobs\CreateFile;
 use PHPUnit_Framework_TestCase;
 
