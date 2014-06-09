@@ -164,12 +164,16 @@ class Config implements Serializable
     }
 
     /**
-     * @param array $servers
+     * @param array|string $servers
      * @return $this
      * @throws InvalidArgumentException
      */
-    public function addServers(array $servers)
+    public function addServers($servers)
     {
+        if (is_string($servers)) {
+            $servers = explode(self::SERVERS_SEPARATOR, $servers);
+        }
+
         foreach ($servers as $server) {
             if (is_array($server)) {
                 $server = array_values($server);
