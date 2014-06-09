@@ -59,17 +59,20 @@ $config = new Config([
 <a name="config-paramaters"></a>
 #### Paramaters
 
+ * string __server__<br>
+   The Gearman Server (E.G. 127.0.0.1:4730).
+   
+ * array __servers__<br>
+   Pool of Gearman Servers.
+
  * string __bootstrap__<br>
    Path to the bootstrap file.
    
  * string __class__<br>
    Fully qualified name of the bootstrap class, the class needs to implement the `Sinergi\Gearman\BootstrapInterface` interface.
    
- * string __server__<br>
-   The Gearman Server (E.G. 127.0.0.1:4730).
-   
- * array __servers__<br>
-   Pool of Gearman Servers.
+ * array __env_variables__<br>
+   Environment variables you want to send to your bootstrap.
    
  * string __user__<br>
    The user under which the Gearman Workers will run (E.G. apache).

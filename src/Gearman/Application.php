@@ -9,6 +9,7 @@ use React\EventLoop\Factory as Loop;
 use React\EventLoop\LibEventLoop;
 use React\EventLoop\StreamSelectLoop;
 use Serializable;
+use Sinergi\Gearman\Exception\InvalidBootstrapClassException;
 
 class Application implements Serializable
 {
@@ -123,10 +124,14 @@ class Application implements Serializable
 
     /**
      * @param bool $fork
-     * @throws Exception
+     * @throws InvalidBootstrapClassException
      */
     public function run($fork = true)
     {
+        if ($this->getConfig()->getEnvVariables()) {
+            $this->addEnvVariables();
+        }
+
         $bootstrap = $this->getConfig()->getBootstrap();
         if (is_file($bootstrap)) {
             require_once $bootstrap;
@@ -142,6 +147,16 @@ class Application implements Serializable
         }
 
         $this->runProcess($fork);
+    }
+
+    public function addEnvVariables()
+    {
+        foreach ($this->getConfig()->getEnvVariables() as $key => $variable) {
+            $key = (string)$key;
+            $variable = (string)$variable;
+            $var = "{$key}={$variable}";
+            putenv($var);
+        }
     }
 
     /**
