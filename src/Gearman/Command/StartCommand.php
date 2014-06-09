@@ -138,10 +138,10 @@ class StartCommand extends Command
     }
 
     /**
-     * @param callable $runtime
+     * @param null|callable $runtime
      * @return $this
      */
-    public function setRuntime(callable $runtime)
+    public function setRuntime(callable $runtime = null)
     {
         $this->runtime = $runtime;
         return $this;
