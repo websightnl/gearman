@@ -59,7 +59,7 @@ $config = new Config([
 <a name="config-paramaters"></a>
 #### Paramaters
 
- * string|callable __bootstrap__<br>
+ * string __bootstrap__<br>
    Path to the bootstrap file.
    
  * string __class__<br>
