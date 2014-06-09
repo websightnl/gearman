@@ -1,12 +1,14 @@
 <?php
 namespace Sinergi\Gearman\Command;
 
+use Sinergi\Gearman\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Sinergi\Gearman\Process;
 use Sinergi\Gearman\Config;
+use Sinergi\Gearman\Application as GearmanApplication;
 
 class StartCommand extends Command
 {
@@ -26,6 +28,11 @@ class StartCommand extends Command
     private $runtime;
 
     /**
+     * @var GearmanApplication
+     */
+    private $gearmanApplication;
+
+    /**
      * @var bool
      */
     private $result = false;
@@ -35,9 +42,12 @@ class StartCommand extends Command
         $this->setName('start')
             ->setDescription('Start the gearman workers daemon')
             ->addOption('bootstrap', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('host', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('port', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('user', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('class', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('server', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('servers', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('user', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('auto_update', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('autoUpdate', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -50,19 +60,7 @@ class StartCommand extends Command
         $output->write('Starting gearman-handler: ');
 
         $config = $this->getConfig();
-
-        if ($bootstrap = $input->getOption('bootstrap')) {
-            $config->setBootstrap($bootstrap);
-        }
-        if ($host = $input->getOption('host')) {
-            $config->setBootstrap($host);
-        }
-        if ($port = $input->getOption('port')) {
-            $config->setBootstrap($port);
-        }
-        if ($user = $input->getOption('user')) {
-            $config->setBootstrap($user);
-        }
+        $config->set($input->getOptions());
 
         $process = $this->getProcess();
         if ($process->isRunning()) {
@@ -70,16 +68,20 @@ class StartCommand extends Command
             return;
         }
 
-        if (!empty($bootstrap) && is_file($bootstrap)) {
-            $this->setResult(true);
-            $output->write('[ <fg=green>OK</fg=green> ]', true);
-            require_once $bootstrap;
-        } elseif (is_callable($this->getRuntime())) {
-            $this->setResult(true);
-            $output->write('[ <fg=green>OK</fg=green> ]', true);
+        $bootstrap = $this->getConfig()->getBootstrap();
+
+        if (is_callable($this->getRuntime())) {
             $runtime = $this->getRuntime();
             $runtime();
+        } else {
+            $app = $this->getGearmanApplication();
+            if (!$app instanceof GearmanApplication) {
+                $app = new Application($this->getConfig(), $this->getProcess());
+            }
+            $app->run();
         }
+        $this->setResult(true);
+        $output->write('[ <fg=green>OK</fg=green> ]', true);
     }
 
     /**
@@ -160,6 +162,24 @@ class StartCommand extends Command
     public function setResult($result)
     {
         $this->result = $result;
+        return $this;
+    }
+
+    /**
+     * @return Application
+     */
+    public function getGearmanApplication()
+    {
+        return $this->gearmanApplication;
+    }
+
+    /**
+     * @param Application $gearmanApplication
+     * @return $this
+     */
+    public function setGearmanApplication(Application $gearmanApplication)
+    {
+        $this->gearmanApplication = $gearmanApplication;
         return $this;
     }
 }

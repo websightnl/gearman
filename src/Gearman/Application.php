@@ -127,6 +127,29 @@ class Application implements Serializable
      */
     public function run($fork = true)
     {
+        $bootstrap = $this->getConfig()->getBootstrap();
+        if (is_file($bootstrap)) {
+            require_once $bootstrap;
+        }
+
+        $class = $this->getConfig()->getClass();
+        if (!empty($class)) {
+            $bootstrap = new $class();
+            if (!$bootstrap instanceof BootstrapInterface) {
+                throw new InvalidBootstrapClassException;
+            }
+            $bootstrap->run($this);
+        }
+
+        $this->runProcess($fork);
+    }
+
+    /**
+     * @param bool $fork
+     * @throws Exception
+     */
+    public function runProcess($fork = true)
+    {
         $pidFile = $this->getProcess()->getPidFile();
         $lockFile = $this->getProcess()->getLockFile();
         if (is_file($pidFile) && is_writable($pidFile)) {
@@ -421,11 +444,6 @@ class Application implements Serializable
     {
         return serialize([
             'config' => $this->getConfig(),
-            'process' => $this->getProcess(),
-            //'callbacks' => $this->callbacks, fixme cannot serialize closure
-            'worker' => $this->getWorker(),
-            'jobs' => $this->jobs,
-            'logger' => $this->getLogger(),
             'isAllowingJob' => true
         ]);
     }
@@ -440,31 +458,9 @@ class Application implements Serializable
         if (isset($data['config'])) {
             $this->setConfig($data['config']);
         }
-        if (isset($data['logger']) && $data['logger'] instanceof LoggerInterface) {
-            $this->setLogger($data['logger']);
-        }
-        if (isset($data['callbacks'])) {
-            //$this->callbacks = $data['callbacks']; fixme cannot serialize closure
-        }
 
         $process = new Process($this->getConfig(), $this->getLogger());
         $this->setProcess($process);
-
-        if (isset($data['worker'])) {
-            /** @var Worker $worker */
-            $worker = $data['worker'];
-            $worker->setConfig($this->getConfig());
-            $worker->setLogger($this->getLogger());
-        } else {
-            $worker = new Worker($this->getConfig(), $this->getLogger());
-        }
-        $this->setWorker($worker);
-
-        if (isset($data['jobs'])) {
-            foreach ($data['jobs'] as $job) {
-                $this->add($job);
-            }
-        }
 
         if (isset($data['isAllowingJob'])) {
             $this->isAllowingJob = $data['isAllowingJob'];

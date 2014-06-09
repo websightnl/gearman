@@ -4,7 +4,7 @@ namespace Sinergi\Gearman;
 use Serializable;
 use Psr\Log\LoggerInterface;
 
-class Process implements Serializable
+class Process
 {
     const PID_FILE = 'gearmanhandler.pid';
     const LOCK_FILE = 'gearmanhandler.lock';
@@ -170,21 +170,5 @@ class Process implements Serializable
     {
         $this->logger = $logger;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function serialize()
-    {
-        return serialize([]);
-    }
-
-    /**
-     * @param string $serialized
-     */
-    public function unserialize($serialized)
-    {
-        null;
     }
 }

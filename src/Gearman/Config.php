@@ -15,6 +15,11 @@ class Config implements Serializable
     private $bootstrap;
 
     /**
+     * @var string
+     */
+    private $class;
+
+    /**
      * @var Server[]
      */
     private $servers = [];
@@ -84,18 +89,11 @@ class Config implements Serializable
                     case 'servers':
                         $this->addServers($value);
                         break;
-                    case 'gearmanHost':
-                    case 'gearman_host':
-                        // deprecated
-                        $this->setGearmanHost($value);
-                        break;
-                    case 'gearmanPort':
-                    case 'gearman_port':
-                        // deprecated
-                        $this->setGearmanPort($value);
-                        break;
                     case 'bootstrap':
                         $this->setBootstrap($value);
+                        break;
+                    case 'class':
+                        $this->setClass($value);
                         break;
                     case 'workerLifetime':
                     case 'worker_lifetime':
@@ -127,18 +125,11 @@ class Config implements Serializable
             case 'servers':
                 return $this->getServers();
                 break;
-            case 'gearmanHost':
-            case 'gearman_host':
-                // deprecated
-                return $this->getGearmanHost();
-                break;
-            case 'gearmanPort':
-            case 'gearman_port':
-                // deprecated
-                return $this->getGearmanPort();
-                break;
             case 'bootstrap':
                 return $this->getBootstrap();
+                break;
+            case 'class':
+                return $this->getClass();
                 break;
             case 'workerLifetime':
             case 'worker_lifetime':
@@ -228,70 +219,6 @@ class Config implements Serializable
     }
 
     /**
-     * @param string $gearmanHost
-     * @return $this
-     * @deprecated
-     */
-    public function setGearmanHost($gearmanHost)
-    {
-        if (isset($this->servers[0])) {
-            $server = $this->servers[0];
-        } else {
-            $server = $this->addServer();
-        }
-
-        $server->setHost($gearmanHost);
-        return $this;
-    }
-
-    /**
-     * @return string
-     * @deprecated
-     */
-    public function getGearmanHost()
-    {
-        if (isset($this->servers[0])) {
-            $server = $this->servers[0];
-        } else {
-            $server = $this->addServer();
-        }
-
-        return $server->getHost();
-    }
-
-    /**
-     * @param int $gearmanPort
-     * @return $this
-     * @deprecated
-     */
-    public function setGearmanPort($gearmanPort)
-    {
-        if (isset($this->servers[0])) {
-            $server = $this->servers[0];
-        } else {
-            $server = $this->addServer();
-        }
-
-        $server->setPort($gearmanPort);
-        return $this;
-    }
-
-    /**
-     * @return int
-     * @deprecated
-     */
-    public function getGearmanPort()
-    {
-        if (isset($this->servers[0])) {
-            $server = $this->servers[0];
-        } else {
-            $server = $this->addServer();
-        }
-
-        return $server->getPort();
-    }
-
-    /**
      * @param bool $autoUpdate
      * @return $this
      */
@@ -325,6 +252,24 @@ class Config implements Serializable
     public function getBootstrap()
     {
         return $this->bootstrap;
+    }
+
+    /**
+     * @param string $class
+     * @return $this
+     */
+    public function setClass($class)
+    {
+        $this->class = $class;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClass()
+    {
+        return $this->class;
     }
 
     /**
@@ -370,6 +315,7 @@ class Config implements Serializable
     {
         return serialize([
             'bootstrap' => $this->getBootstrap(),
+            'class' => $this->getClass(),
             'servers' => $this->getServers(),
             'workerLifetime' => $this->getWorkerLifetime(),
             'autoUpdate' => $this->getAutoUpdate(),

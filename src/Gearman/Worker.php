@@ -7,7 +7,7 @@ use GearmanWorker;
 use Psr\Log\LoggerInterface;
 use Sinergi\Gearman\Exception\ServerConnectionException;
 
-class Worker implements Serializable
+class Worker
 {
     /**
      * @var GearmanWorker
@@ -137,21 +137,5 @@ class Worker implements Serializable
     {
         $this->logger = $logger;
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function serialize()
-    {
-        return serialize([]);
-    }
-
-    /**
-     * @param string $serialized
-     */
-    public function unserialize($serialized)
-    {
-        $data = unserialize($serialized);
     }
 }

@@ -6,6 +6,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Sinergi\Gearman\Config;
 use Sinergi\Gearman\Process;
+use Sinergi\Gearman\Application as GearmanApplication;
 
 class StopCommand extends Command
 {
@@ -23,6 +24,11 @@ class StopCommand extends Command
      * @var bool
      */
     private $result = false;
+
+    /**
+     * @var GearmanApplication
+     */
+    private $gearmanApplication;
 
     protected function configure()
     {
@@ -112,4 +118,23 @@ class StopCommand extends Command
         $this->result = $result;
         return $this;
     }
+
+    /**
+     * @return GearmanApplication
+     */
+    public function getGearmanApplication()
+    {
+        return $this->gearmanApplication;
+    }
+
+    /**
+     * @param Application $gearmanApplication
+     * @return $this
+     */
+    public function setGearmanApplication(GearmanApplication $gearmanApplication)
+    {
+        $this->gearmanApplication = $gearmanApplication;
+        return $this;
+    }
+
 }

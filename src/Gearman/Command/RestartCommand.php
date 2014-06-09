@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Sinergi\Gearman\Process;
 use Sinergi\Gearman\Config;
+use Sinergi\Gearman\Application as GearmanApplication;
 
 class RestartCommand extends Command
 {
@@ -25,14 +26,22 @@ class RestartCommand extends Command
      */
     private $runtime;
 
+    /**
+     * @var GearmanApplication
+     */
+    private $gearmanApplication;
+
     protected function configure()
     {
         $this->setName('restart')
             ->setDescription('Restart the gearman workers daemon')
             ->addOption('bootstrap', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('host', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('port', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('user', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('class', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('server', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('servers', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('user', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('auto_update', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('autoUpdate', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -64,6 +73,7 @@ class RestartCommand extends Command
         }
 
         $start = new StartCommand();
+        $start->setGearmanApplication($this->getGearmanApplication());
         $start->setProcess($this->getProcess());
         $start->setRuntime($this->getRuntime());
         $start->run($input, $output);
@@ -129,6 +139,24 @@ class RestartCommand extends Command
     public function setRuntime(callable $runtime)
     {
         $this->runtime = $runtime;
+        return $this;
+    }
+
+    /**
+     * @return GearmanApplication
+     */
+    public function getGearmanApplication()
+    {
+        return $this->gearmanApplication;
+    }
+
+    /**
+     * @param GearmanApplication $gearmanApplication
+     * @return $this
+     */
+    public function setGearmanApplication(GearmanApplication $gearmanApplication)
+    {
+        $this->gearmanApplication = $gearmanApplication;
         return $this;
     }
 }

@@ -52,11 +52,5 @@ if (isset($_SERVER['argv'][1])) {
     }
 
     $application->setProcess(new Process($application->getConfig(), $application->getLogger()));
-
-    $bootstrap = $application->getConfig()->getBootstrap();
-    if (isset($bootstrap) && is_file($bootstrap)) {
-        require_once $bootstrap;
-    } else {
-        $application->run(false);
-    }
+    $application->run();
 }

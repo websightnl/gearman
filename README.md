@@ -39,11 +39,13 @@ The library uses a Config class to share configuration between classes.
 use Sinergi\Gearman\Config;
 
 $config = (new Config())
-    ->addServer(127.0.0.1, 4730)
+    ->addServer('127.0.0.1', 4730)
     ->setUser('apache');
 ```
 
 #### Example using array
+
+Alternatively, you can setup the config with an array.
 
 ```php
 use Sinergi\Gearman\Config;
@@ -54,33 +56,41 @@ $config = new Config([
 ]);
 ```
 
+<a name="config-paramaters"></a>
 #### Paramaters
 
- * string __bootstrap__<br>
-   Path to the bootstrap file
+ * string|callable __bootstrap__<br>
+   Path to the bootstrap file.
+   
+ * string __class__<br>
+   Fully qualified name of the bootstrap class, the class needs to implement the `Sinergi\Gearman\BootstrapInterface` interface.
    
  * string __server__<br>
-   The Gearman Server (E.G. 127.0.0.1:4730)
+   The Gearman Server (E.G. 127.0.0.1:4730).
    
  * array __servers__<br>
-   Pool of Gearman Servers
+   Pool of Gearman Servers.
    
  * string __user__<br>
-   The user under which the Gearman Workers will run
+   The user under which the Gearman Workers will run (E.G. apache).
    
  * bool __auto_update__<br> 
-   Use for __*development only*__, automatically updates workers before doing a job or task 
+   Use for __*development only*__, automatically updates workers before doing a job or task.
 
 ## Boostrap
 
-File `/path/to/bootstrap.php`
+File `/path/to/your/bootstrap.php`
 
 ```php
-use Sinergi\Gearman\Application;
+use Sinergi\Gearman\BootstrapInterface;
 
-$app = new Application();
-$app->add(new JobExample());
-$app->run();
+class MyBootstrap implements BootstrapInterface
+{
+    public function run(Application $application)
+    {
+        $application->add(new JobExample());
+    }
+}
 ```
 
 ## Job example
@@ -117,17 +127,18 @@ $dispatcher->execute('JobExample', ['data' => 'value']);
 ## Start workers daemon
 
 Starts the Workers as a daemon. You can use something like supervisord to make sure the Workers are always running.
+You can use the same parameters as in the [config](#config-paramaters).
 
 #### Single server
 
 ```shell
-php vendor/bin/gearman start --bootstrap="/path/to/bootstrap.php" --host="127.0.0.1" --port=4730
+php vendor/bin/gearman start --bootstrap="/path/to/your/bootstrap.php" --class="MyBootstrap" --server="127.0.0.1:4730"
 ```
 
 #### Multiple servers
 
 ```shell
-php vendor/bin/gearman start --bootstrap="/path/to/bootstrap.php" --servers="127.0.0.1:4730,127.0.0.1:4731"
+php vendor/bin/gearman start --bootstrap="/path/to/your/bootstrap.php" --class="MyBootstrap" --servers="127.0.0.1:4730,127.0.0.1:4731"
 ```
 
 #### List of commands
