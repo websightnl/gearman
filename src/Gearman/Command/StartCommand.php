@@ -70,16 +70,18 @@ class StartCommand extends Command
 
         if (is_callable($this->getRuntime())) {
             $runtime = $this->getRuntime();
+            $this->setResult(true);
+            $output->write('[ <fg=green>OK</fg=green> ]', true);
             $runtime();
         } else {
             $app = $this->getGearmanApplication();
             if (!$app instanceof GearmanApplication) {
                 $app = new Application($this->getConfig(), $this->getProcess());
             }
+            $this->setResult(true);
+            $output->write('[ <fg=green>OK</fg=green> ]', true);
             $app->run();
         }
-        $this->setResult(true);
-        $output->write('[ <fg=green>OK</fg=green> ]', true);
     }
 
     /**
