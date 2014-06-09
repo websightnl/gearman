@@ -10,11 +10,6 @@ class StartCommandTest extends PHPUnit_Framework_TestCase
 {
     public function testExecute()
     {
-        $application = new Application();
-        $application->add(new StartCommand());
-
-        $command = $application->find('start');
-        $commandTester = new CommandTester($command);
-        $commandTester->execute(['command' => $command->getName()]);
+        // TODO
     }
 }

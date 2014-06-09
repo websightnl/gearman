@@ -68,8 +68,6 @@ class StartCommand extends Command
             return;
         }
 
-        $bootstrap = $this->getConfig()->getBootstrap();
-
         if (is_callable($this->getRuntime())) {
             $runtime = $this->getRuntime();
             $runtime();

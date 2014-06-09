@@ -87,7 +87,9 @@ class Config implements Serializable
                         $this->addServer($value);
                         break;
                     case 'servers':
-                        $this->addServers($value);
+                        if (null !== $value) {
+                            $this->addServers($value);
+                        }
                         break;
                     case 'bootstrap':
                         $this->setBootstrap($value);
