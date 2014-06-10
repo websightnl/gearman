@@ -86,6 +86,7 @@ File `/path/to/your/bootstrap.php`
 
 ```php
 use Sinergi\Gearman\BootstrapInterface;
+use Sinergi\Gearman\Application;
 
 class MyBootstrap implements BootstrapInterface
 {
