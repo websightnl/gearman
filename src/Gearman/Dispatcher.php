@@ -41,6 +41,7 @@ class Dispatcher
      * @param mixed $data
      * @param int $priority
      * @param string $unique
+     * @return string $jobHandle
      */
     public function background($name, $data = null, $priority = self::NORMAL, $unique = null)
     {
@@ -72,6 +73,8 @@ class Dispatcher
         if (null !== $this->logger) {
             $this->logger->info("Sent job \"{$jobHandle}\" to GearmanWorker");
         }
+        
+        return $jobHandle;
     }
 
     /**
