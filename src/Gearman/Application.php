@@ -83,7 +83,7 @@ class Application implements Serializable
         if (null !== $process) {
             $this->setProcess($process);
         }
-        if ($loop instanceof StreamSelectLoop || $loop instanceof StreamSelectLoop) {
+        if ($loop instanceof StreamSelectLoop || $loop instanceof LibEventLoop) {
             $this->setLoop($loop);
         }
     }
