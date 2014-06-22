@@ -42,6 +42,15 @@ class Worker
         }
     }
 
+    public function resetWorker()
+    {
+        if ($this->worker instanceof GearmanWorker) {
+            $this->worker->unregisterAll();
+        }
+        $this->worker = null;
+        $this->createWorker();
+    }
+
     /**
      * @throws Exception\ServerConnectionException
      */
@@ -67,19 +76,6 @@ class Worker
                 throw new ServerConnectionException($exception);
             }
         }
-    }
-
-    /**
-     * @param string $functionName
-     * @param callback $function
-     * @param null|mixed $context
-     * @param null|int $timeout
-     * @return bool
-     */
-    public function addFunction($functionName, $function, $context = null, $timeout = null)
-    {
-        $this->functions[] = [$functionName, $function, $context, $timeout];
-        return $this->getWorker()->addFunction($functionName, $function, $context, $timeout);
     }
 
     /**

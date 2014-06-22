@@ -56,12 +56,36 @@ class Application implements Serializable
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    public $logger;
 
     /**
      * @var bool
      */
-    private $isAllowingJob = false;
+    public $isAllowingJob = false;
+
+    /**
+     * @var bool
+     */
+    public $isBootstraped = false;
+
+    /**
+     * @var Application
+     */
+    private static $instance;
+
+    /**
+     * gets the instance via lazy initialization (created on first usage)
+     *
+     * @return self
+     */
+    public static function getInstance()
+    {
+        if (null === static::$instance) {
+            static::$instance = new static;
+        }
+
+        return static::$instance;
+    }
 
     /**
      * @param Config $config
@@ -71,6 +95,8 @@ class Application implements Serializable
      */
     public function __construct(Config $config = null, Process $process = null, $loop = null, LoggerInterface $logger = null)
     {
+        static::$instance = $this;
+
         if (null === $config) {
             $config = Config::getInstance();
         }
@@ -122,11 +148,7 @@ class Application implements Serializable
         }
     }
 
-    /**
-     * @param bool $fork
-     * @throws InvalidBootstrapClassException
-     */
-    public function run($fork = true)
+    public function bootstrap($restart = false)
     {
         if ($this->getConfig()->getEnvVariables()) {
             $this->addEnvVariables();
@@ -135,6 +157,11 @@ class Application implements Serializable
         $bootstrap = $this->getConfig()->getBootstrap();
         if (is_file($bootstrap)) {
             require_once $bootstrap;
+            if ($restart && null !== self::$instance && spl_object_hash($this) !== spl_object_hash(self::$instance)) {
+                self::$instance->unserialize($this->serialize());
+                self::$instance->run(false, true);
+                $this->kill = true;
+            }
         }
 
         $class = $this->getConfig()->getClass();
@@ -146,7 +173,20 @@ class Application implements Serializable
             $bootstrap->run($this);
         }
 
-        $this->runProcess($fork);
+        $this->isBootstraped = true;
+    }
+
+    /**
+     * @param bool $fork
+     * @throws InvalidBootstrapClassException
+     */
+    public function run($fork = true, $restart = false)
+    {
+        if (!$restart) {
+            $this->bootstrap();
+        }
+
+        $this->runProcess($fork, $restart);
     }
 
     public function addEnvVariables()
@@ -163,7 +203,7 @@ class Application implements Serializable
      * @param bool $fork
      * @throws Exception
      */
-    public function runProcess($fork = true)
+    public function runProcess($fork = true, $restart = false)
     {
         $pidFile = $this->getProcess()->getPidFile();
         $lockFile = $this->getProcess()->getLockFile();
@@ -197,7 +237,7 @@ class Application implements Serializable
             }
 
             $this->signalHandlers();
-            $this->createLoop();
+            $this->createLoop($restart);
         } elseif ($fork && isset($pid) && $pid) {
             $wait = true;
 
@@ -247,14 +287,23 @@ class Application implements Serializable
     }
 
     /**
+     * @param bool $restart
      * @return $this
      */
-    private function createLoop()
+    private function createLoop($restart = false)
     {
         $worker = $this->getWorker()->getWorker();
         $worker->setTimeout(10);
 
         $callbacks = $this->getCallbacks();
+
+        if (!$this->isBootstraped) {
+            $this->bootstrap(true);
+        }
+
+        if ($this->kill) {
+            return;
+        }
 
         while ($worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
             if ($this->getKill()) {
@@ -269,7 +318,6 @@ class Application implements Serializable
                 }
             }
         }
-
         return $this;
     }
 
@@ -278,15 +326,15 @@ class Application implements Serializable
      * @param GearmanJob $gearmanJob
      * @return mixed
      */
-    public function executeJob(JobInterface $job, GearmanJob $gearmanJob)
+    public function executeJob(JobInterface $job, GearmanJob $gearmanJob, Application $root)
     {
-        if ($this->getConfig()->getAutoUpdate() && !$this->isAllowingJob) {
-            $this->restart();
+        if ($root->getConfig()->getAutoUpdate() && !$root->isAllowingJob) {
+            $root->restart();
             return null;
         }
-        $this->isAllowingJob = false;
-        if (null !== $this->logger) {
-            $this->logger->info("Executing job {$job->getName()}");
+        $root->isAllowingJob = false;
+        if (null !== $root->logger) {
+            $root->logger->info("Executing job {$job->getName()}");
         }
         return $job->execute($gearmanJob);
     }
@@ -318,11 +366,12 @@ class Application implements Serializable
      */
     public function add(JobInterface $job)
     {
-        $worker = $this->getWorker();
+        $worker = $this->getWorker()->getWorker();
+
         $this->jobs[] = $job;
         $root = $this;
         $worker->addFunction($job->getName(), function (\GearmanJob $gearmanJob) use ($root, $job) {
-            return $root->executeJob($job, $gearmanJob);
+            return $root->executeJob($job, $gearmanJob, $root);
         });
         return $this;
     }
@@ -459,6 +508,7 @@ class Application implements Serializable
     {
         return serialize([
             'config' => $this->getConfig(),
+            'isBootstraped' => false,
             'isAllowingJob' => true
         ]);
     }
@@ -479,6 +529,10 @@ class Application implements Serializable
 
         if (isset($data['isAllowingJob'])) {
             $this->isAllowingJob = $data['isAllowingJob'];
+        }
+
+        if (isset($data['isBootstraped'])) {
+            $this->isBootstraped = $data['isBootstraped'];
         }
     }
 }
