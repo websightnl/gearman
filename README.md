@@ -1,11 +1,10 @@
 Gearman
 =======
 
-[![Build Status](https://travis-ci.org/sinergi/gearman.svg?branch=master)](https://travis-ci.org/sinergi/gearman)
-[![Latest Stable Version](https://poser.pugx.org/sinergi/gearman/v/stable.svg)](https://packagist.org/packages/sinergi/gearman) 
-[![Total Downloads](https://poser.pugx.org/sinergi/gearman/downloads.svg)](https://packagist.org/packages/sinergi/gearman) 
-[![Latest Unstable Version](https://poser.pugx.org/sinergi/gearman/v/unstable.svg)](https://packagist.org/packages/sinergi/gearman) 
-[![License](https://poser.pugx.org/sinergi/gearman/license.svg)](https://packagist.org/packages/sinergi/gearman)
+[![Build Status](https://img.shields.io/travis/sinergi/gearman/master.svg?style=flat)](https://travis-ci.org/sinergi/gearman)
+[![Latest Stable Version](http://img.shields.io/packagist/v/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
+[![Total Downloads](https://img.shields.io/packagist/dt/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
+[![License](https://img.shields.io/packagist/l/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
 
 PHP library for dispatching, handling and managing Gearman Workers
 
