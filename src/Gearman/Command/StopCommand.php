@@ -128,7 +128,7 @@ class StopCommand extends Command
     }
 
     /**
-     * @param Application $gearmanApplication
+     * @param GearmanApplication $gearmanApplication
      * @return $this
      */
     public function setGearmanApplication(GearmanApplication $gearmanApplication)
@@ -136,5 +136,5 @@ class StopCommand extends Command
         $this->gearmanApplication = $gearmanApplication;
         return $this;
     }
-
 }
+

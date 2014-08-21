@@ -1,9 +1,9 @@
 <?php
 namespace Sinergi\Gearman;
 
-use GearmanJob;
 use Closure;
 use Exception;
+use GearmanJob;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\Factory as Loop;
 use React\EventLoop\LibEventLoop;
@@ -324,6 +324,7 @@ class Application implements Serializable
     /**
      * @param JobInterface $job
      * @param GearmanJob $gearmanJob
+     * @param Application $root
      * @return mixed
      */
     public function executeJob(JobInterface $job, GearmanJob $gearmanJob, Application $root)
@@ -371,7 +372,8 @@ class Application implements Serializable
         $this->jobs[] = $job;
         $root = $this;
         $worker->addFunction($job->getName(), function (\GearmanJob $gearmanJob) use ($root, $job) {
-            return $root->executeJob($job, $gearmanJob, $root);
+            $retval = $root->executeJob($job, $gearmanJob, $root);
+            return serialize($retval);
         });
         return $this;
     }

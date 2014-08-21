@@ -115,7 +115,7 @@ class Dispatcher
             $this->logger->debug("Job \"{$name}\" returned {$result}");
         }
 
-        return $result;
+        return unserialize($result);
     }
 
     /**

@@ -5,5 +5,4 @@ use Exception;
 
 class ServerConnectionException extends Exception
 {
-
 }
