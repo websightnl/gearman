@@ -64,7 +64,7 @@ class StartCommand extends Command
 
         $process = $this->getProcess();
         if ($process->isRunning()) {
-            $output->write('[ <error>Failed: Process is already runnning</error> ]', true);
+            $output->write('[ <error>Failed: Process is already running</error> ]', true);
             return;
         }
 
