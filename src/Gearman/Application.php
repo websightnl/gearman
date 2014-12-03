@@ -302,9 +302,10 @@ class Application implements Serializable
         }
 
         if ($this->kill) {
-            return;
+            return null;
         }
 
+        $callbacksCount = count($callbacks);
         while ($worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
             if ($this->getKill()) {
                 break;
@@ -312,12 +313,19 @@ class Application implements Serializable
 
             pcntl_signal_dispatch();
 
-            if (count($callbacks)) {
+            if ($callbacksCount) {
                 foreach ($callbacks as $callback) {
                     $callback($this);
                 }
             }
         }
+
+        if (!$this->getKill() && $worker instanceof \GearmanWorker) {
+            if (null !== $this->logger) {
+                $this->logger->error("Worker error {$worker->error()}");
+            }
+        }
+
         return $this;
     }
 
