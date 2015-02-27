@@ -65,8 +65,12 @@ class StartCommand extends Command
     {
         $output->write('Starting gearman-handler: ');
 
-        if ($this->isDaemon) {
+        if (!$this->isDaemon) {
+            $isDaemon = $this->isDaemon;
+        } else if ($input->hasOption('deamon')) {
             $isDaemon = $input->getOption('deamon');
+        } else {
+            $isDaemon = $this->isDaemon;
         }
 
         $config = $this->getConfig();
