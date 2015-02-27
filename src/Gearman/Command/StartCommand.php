@@ -47,7 +47,8 @@ class StartCommand extends Command
             ->addOption('servers', null, InputOption::VALUE_OPTIONAL)
             ->addOption('user', null, InputOption::VALUE_OPTIONAL)
             ->addOption('auto_update', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('autoUpdate', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('autoUpdate', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('daemon', 'd', InputOption::VALUE_OPTIONAL, '', true);
     }
 
     /**
@@ -58,6 +59,8 @@ class StartCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->write('Starting gearman-handler: ');
+
+        $isDaemon = $input->getOption('deamon');
 
         $config = $this->getConfig();
         $config->set($input->getOptions());
@@ -80,7 +83,7 @@ class StartCommand extends Command
             }
             $this->setResult(true);
             $output->write('[ <fg=green>OK</fg=green> ]', true);
-            $app->run();
+            $app->run($isDaemon);
         }
     }
 
