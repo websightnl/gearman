@@ -37,6 +37,11 @@ class StartCommand extends Command
      */
     private $result = false;
 
+    /**
+     * @var bool
+     */
+    private $isDaemon = true;
+
     protected function configure()
     {
         $this->setName('start')
@@ -60,7 +65,9 @@ class StartCommand extends Command
     {
         $output->write('Starting gearman-handler: ');
 
-        $isDaemon = $input->getOption('deamon');
+        if ($this->isDaemon) {
+            $isDaemon = $input->getOption('deamon');
+        }
 
         $config = $this->getConfig();
         $config->set($input->getOptions());
@@ -183,6 +190,24 @@ class StartCommand extends Command
     public function setGearmanApplication(Application $gearmanApplication)
     {
         $this->gearmanApplication = $gearmanApplication;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDaemon()
+    {
+        return $this->isDaemon;
+    }
+
+    /**
+     * @param bool $isDaemon
+     * @return $this
+     */
+    public function setIsDaemon($isDaemon)
+    {
+        $this->isDaemon = $isDaemon;
         return $this;
     }
 }
