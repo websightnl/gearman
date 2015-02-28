@@ -31,6 +31,11 @@ class RestartCommand extends Command
      */
     private $gearmanApplication;
 
+    /**
+     * @var bool
+     */
+    private $isDaemon = true;
+
     protected function configure()
     {
         $this->setName('restart')
@@ -41,7 +46,8 @@ class RestartCommand extends Command
             ->addOption('servers', null, InputOption::VALUE_OPTIONAL)
             ->addOption('user', null, InputOption::VALUE_OPTIONAL)
             ->addOption('auto_update', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('autoUpdate', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('autoUpdate', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('daemon', 'd', InputOption::VALUE_OPTIONAL, '', true);
     }
 
     /**
@@ -72,10 +78,19 @@ class RestartCommand extends Command
             }
         }
 
+        if (!$this->isDaemon) {
+            $isDaemon = $this->isDaemon;
+        } else if ($input->hasOption('deamon')) {
+            $isDaemon = $input->getOption('deamon');
+        } else {
+            $isDaemon = $this->isDaemon;
+        }
+
         $start = new StartCommand();
         $start->setGearmanApplication($this->getGearmanApplication());
         $start->setProcess($this->getProcess());
         $start->setRuntime($this->getRuntime());
+        $start->setIsDaemon($isDaemon);
         $start->run($input, $output);
     }
 
@@ -157,6 +172,24 @@ class RestartCommand extends Command
     public function setGearmanApplication(GearmanApplication $gearmanApplication)
     {
         $this->gearmanApplication = $gearmanApplication;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDaemon()
+    {
+        return $this->isDaemon;
+    }
+
+    /**
+     * @param bool $isDaemon
+     * @return $this
+     */
+    public function setIsDaemon($isDaemon)
+    {
+        $this->isDaemon = $isDaemon;
         return $this;
     }
 }
