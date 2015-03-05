@@ -54,13 +54,13 @@ class Dispatcher
         $jobHandle = null;
         switch ($priority) {
             case self::LOW:
-                $jobHandle = $client->doLowBackground($name, self::serialize($data), $unique);
+                $jobHandle = $client->doLowBackground($name, static::serialize($data), $unique);
                 break;
             case self::HIGH:
-                $jobHandle = $client->doHighBackground($name, self::serialize($data), $unique);
+                $jobHandle = $client->doHighBackground($name, static::serialize($data), $unique);
                 break;
             default:
-                $jobHandle = $client->doBackground($name, self::serialize($data), $unique);
+                $jobHandle = $client->doBackground($name, static::serialize($data), $unique);
                 break;
         }
 
@@ -95,13 +95,13 @@ class Dispatcher
         $result = null;
         switch ($priority) {
             case self::LOW:
-                $result = $client->doLow($name, self::serialize($data), $unique);
+                $result = $client->doLow($name, static::serialize($data), $unique);
                 break;
             case self::HIGH:
-                $result = $client->doHigh($name, self::serialize($data), $unique);
+                $result = $client->doHigh($name, static::serialize($data), $unique);
                 break;
             default:
-                $result = $client->doNormal($name, self::serialize($data), $unique);
+                $result = $client->doNormal($name, static::serialize($data), $unique);
                 break;
         }
 
@@ -115,16 +115,25 @@ class Dispatcher
             $this->logger->debug("Job \"{$name}\" returned {$result}");
         }
 
-        return unserialize($result);
+        return static::unserialize($result);
     }
 
     /**
      * @param mixed $data
      * @return string
      */
-    private function serialize($data = [])
+    protected function serialize($data = [])
     {
         return serialize($data);
+    }
+
+    /**
+     * @param string $result
+     * @return mixed
+     */
+    protected function unserialize($result)
+    {
+        return unserialize($result);
     }
 
     /**
