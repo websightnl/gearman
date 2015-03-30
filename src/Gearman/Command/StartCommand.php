@@ -67,8 +67,15 @@ class StartCommand extends Command
 
         if (!$this->isDaemon) {
             $isDaemon = $this->isDaemon;
-        } else if ($input->hasOption('deamon')) {
-            $isDaemon = $input->getOption('deamon');
+        } elseif ($input->hasOption('daemon')) {
+            $isDaemon = $input->getOption('daemon');
+            if ($isDaemon == 'false') {
+                $isDaemon = false;
+            } elseif ($isDaemon == 'true') {
+                $isDaemon = true;
+            } else {
+                $isDaemon = (bool)$isDaemon;
+            }
         } else {
             $isDaemon = $this->isDaemon;
         }
