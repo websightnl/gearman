@@ -25,7 +25,8 @@ _**Todo:** Tests are working but could cover more._
 <a name="requirements"></a>
 ## Requirements
 
-This library uses PHP 5.4+ and Gearman 1.0+.
+This library uses PHP 5.4+, [PECL Gearman](http://php.net/manual/en/book.gearman.php) and 
+[Gearman 1.0+](http://gearman.org).
 
 <a name="installation"></a>
 ## Installation
