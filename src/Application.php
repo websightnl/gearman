@@ -306,16 +306,19 @@ class Application implements Serializable
         }
 
         $callbacksCount = count($callbacks);
-        while ($worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
-            if ($this->getKill()) {
-                break;
-            }
 
-            pcntl_signal_dispatch();
+        declare (ticks=10) {
+            while ($worker->work() || $worker->returnCode() == GEARMAN_TIMEOUT) {
+                if ($this->getKill()) {
+                    break;
+                }
 
-            if ($callbacksCount) {
-                foreach ($callbacks as $callback) {
-                    $callback($this);
+                pcntl_signal_dispatch();
+
+                if ($callbacksCount) {
+                    foreach ($callbacks as $callback) {
+                        $callback($this);
+                    }
                 }
             }
         }

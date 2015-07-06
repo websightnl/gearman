@@ -25,7 +25,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Sinergi\\Gearman\\": "src/Gearman"
+            "Sinergi\\Gearman\\": "src"
         }
     },
     "autoload-dev": {
