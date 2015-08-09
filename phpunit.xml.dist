@@ -8,8 +8,7 @@
         convertErrorsToExceptions="true"
         convertNoticesToExceptions="true"
         convertWarningsToExceptions="true"
-        stopOnFailure="false"
-        syntaxCheck="false">
+        stopOnFailure="false">
     <testsuites>
         <testsuite name="Sinergi Gearman Test Suite">
             <directory>./tests/Gearman/</directory>
