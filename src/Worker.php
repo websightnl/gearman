@@ -25,11 +25,6 @@ class Worker
     private $logger;
 
     /**
-     * @var array
-     */
-    private $functions = [];
-
-    /**
      * @param Config $config
      * @param null|LoggerInterface $logger
      * @throws ServerConnectionException
