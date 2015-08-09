@@ -5,7 +5,6 @@ use PHPUnit_Framework_TestCase;
 use Sinergi\Gearman\Application;
 use Sinergi\Gearman\Process;
 use Sinergi\Gearman\Config;
-use Sinergi\Gearman\Tests\Job\CreateFile;
 use Sinergi\Gearman\Tests\Job\MockJob;
 
 class ApplicationTest extends PHPUnit_Framework_TestCase

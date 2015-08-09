@@ -1,7 +1,6 @@
 <?php
 namespace Sinergi\Gearman;
 
-use Serializable;
 use GearmanException;
 use GearmanWorker;
 use Psr\Log\LoggerInterface;
