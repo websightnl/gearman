@@ -15,7 +15,7 @@ install:
   - sudo apt-get install gearman-job-server libgearman-dev
   - printf "\n"| pecl install gearman-1.0.3
   ## Composer
-  - composer install --prefer-source --no-interaction --dev
+  - composer install
 
 script:
   - gearmand -d
