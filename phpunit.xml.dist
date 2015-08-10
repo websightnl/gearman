@@ -1,12 +1,16 @@
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
-         bootstrap="tests/bootstrap.php"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         stopOnFailure="false"
-         syntaxCheck="false">
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.8/phpunit.xsd"
+        backupGlobals="false"
+        backupStaticAttributes="false"
+        beStrictAboutTestsThatDoNotTestAnything="true"
+        bootstrap="tests/bootstrap.php"
+        colors="true"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+        stopOnFailure="false"
+        verbose="true">
     <testsuites>
         <testsuite name="Sinergi Gearman Test Suite">
             <directory>./tests/Gearman/</directory>
