@@ -1,7 +1,6 @@
 <?php
 namespace Sinergi\Gearman;
 
-use Serializable;
 use Psr\Log\LoggerInterface;
 
 class Process
