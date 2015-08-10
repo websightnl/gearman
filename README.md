@@ -2,6 +2,7 @@ Gearman
 =======
 
 [![Build Status](https://img.shields.io/travis/sinergi/gearman/master.svg?style=flat)](https://travis-ci.org/sinergi/gearman)
+[![Code Climate](https://codeclimate.com/github/sinergi/gearman/badges/gpa.svg)](https://codeclimate.com/github/sinergi/gearman)
 [![Latest Stable Version](http://img.shields.io/packagist/v/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
 [![Total Downloads](https://img.shields.io/packagist/dt/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
 [![License](https://img.shields.io/packagist/l/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
