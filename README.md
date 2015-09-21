@@ -17,7 +17,7 @@ _**Todo:** Tests are working but could cover more._
 1. [Requirements](#requirements)
 2. [Installation](#installation)
 3. [Config](#config)
-4. [Boostrap](#boostrap)
+4. [Bootstrap](#bootstrap)
 5. [Job example](#job-example)
 6. [Dispatcher usage](#dispatcher-usage)
 7. [Start workers daemon](#start-workers-daemon)
@@ -70,8 +70,8 @@ $config = new Config([
 ]);
 ```
 
-<a name="config-paramaters"></a>
-#### Paramaters
+<a name="config-parameters"></a>
+#### Parameters
 
  * string __server__<br>
    The Gearman Server (E.G. 127.0.0.1:4730).
@@ -94,8 +94,8 @@ $config = new Config([
  * bool __auto_update__<br> 
    Use for __*development only*__, automatically updates workers before doing a job or task.
 
-<a name="boostrap"></a>
-## Boostrap
+<a name="bootstrap"></a>
+## Bootstrap
 
 File `/path/to/your/bootstrap.php`
 
@@ -136,7 +136,7 @@ class JobExample implements JobInterface
 <a name="dispatcher-usage"></a>
 ## Dispatcher usage
 
-To send tasks and jobs to the Workers, use the Distpacher like this:
+To send tasks and jobs to the Workers, use the Dispatcher like this:
 
 ```php
 use Sinergi\Gearman\Dispatcher;
@@ -149,7 +149,7 @@ $dispatcher->execute('JobExample', ['data' => 'value']);
 ## Start workers daemon
 
 Starts the Workers as a daemon. You can use something like supervisor to make sure the Workers are always running.
-You can use the same parameters as in the [config](#config-paramaters).
+You can use the same parameters as in the [config](#config-parameters).
 
 #### Single server
 
