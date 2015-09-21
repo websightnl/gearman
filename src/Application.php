@@ -178,6 +178,7 @@ class Application implements Serializable
 
     /**
      * @param bool $fork
+     * @param bool $restart
      * @throws InvalidBootstrapClassException
      */
     public function run($fork = true, $restart = false)
@@ -201,6 +202,7 @@ class Application implements Serializable
 
     /**
      * @param bool $fork
+     * @param bool $restart
      * @throws Exception
      */
     public function runProcess($fork = true, $restart = false)
@@ -398,7 +400,7 @@ class Application implements Serializable
     }
 
     /**
-     * @param callable $callback
+     * @param Closure $callback
      * @return $this
      */
     public function addCallback(Closure $callback)
