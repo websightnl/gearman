@@ -8,6 +8,7 @@ php:
 
 before_install:
   - composer self-update
+  - composer validate
 
 install:
   # gearman
