@@ -16,7 +16,7 @@ class ApplicationTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->config = new Config(require __DIR__ . "/_files/config.php");
+        $this->config = new Config(require __DIR__ . "/config.php");
     }
 
     public function testProcessGetsStarted()
