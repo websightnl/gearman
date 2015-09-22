@@ -28,7 +28,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Sinergi\\Gearman\\Tests\\": ["tests/Gearman/Tests", "tests/Gearman/Tests/_includes"]
+            "Sinergi\\Gearman\\Tests\\": "tests"
         }
     },
     "bin": ["bin/gearman", "bin/gearman.php"]
