@@ -22,7 +22,9 @@ install:
   ## Composer
   - composer install
 
-script:
+before_script:
   - gearmand -d
+
+script:
   - vendor/bin/phpunit
 
