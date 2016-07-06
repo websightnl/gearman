@@ -13,27 +13,34 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $this->configValues = require __DIR__ . '/config.php';
     }
 
-    public function testSingleton()
+    public function testGetInstanceReturnsConfig()
     {
         $config = Config::getInstance();
-        $this->assertInstanceOf('Sinergi\Gearman\Config', $config);
 
-        $config = new Config();
-        $config->setUser('test1');
-
-        $config = Config::getInstance();
         $this->assertInstanceOf('Sinergi\Gearman\Config', $config);
-        $this->assertEquals('test1', $config->getUser());
     }
 
-    public function testConstruct()
+
+    public function testGetInstanceReturnsTheSameInstance()
+    {
+        $config = Config::getInstance();
+
+        $this->assertSame($config, Config::getInstance());
+    }
+
+    public function testDefaults()
     {
         $config = new Config();
-        $this->assertNull($config->getBootstrap());
-        $this->assertFalse($config->getAutoUpdate());
 
-        $config = new Config(['user' => 'test1']);
-        $this->assertEquals('test1', $config->getUser());
+        $this->assertFalse($config->getAutoUpdate());
+        $this->assertNull($config->getBootstrap());
+        $this->assertNull($config->getClass());
+        $this->assertNull($config->getEnvVariables());
+        $this->assertNull($config->getServer());
+        $this->assertInternalType('array', $config->getServers());
+        $this->assertCount(0, $config->getServers());
+        $this->assertNull($config->getUser());
+        $this->assertSame(0, $config->getWorkerLifetime());
     }
 
     public function testSetAndGet()
