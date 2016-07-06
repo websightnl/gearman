@@ -3,7 +3,7 @@
     "type": "library",
     "description": "PHP library for dispatching, handling and managing Gearman Workers",
     "keywords": ["Gearman", "Workers", "Daemon", "Jobs", "Tasks"],
-    "homepage": "https://github.com/sinergi/gearman",
+    "homepage": "https://github.com/gavroche/gearman",
     "license": "MIT",
     "authors": [
         {
