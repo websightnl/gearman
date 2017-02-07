@@ -1,14 +1,14 @@
 {
-    "name": "sinergi/gearman",
+    "name": "websightnl/gearman",
     "type": "library",
     "description": "PHP library for dispatching, handling and managing Gearman Workers",
     "keywords": ["Gearman", "Workers", "Daemon", "Jobs", "Tasks"],
-    "homepage": "https://github.com/gavroche/gearman",
+    "homepage": "https://github.com/websightnl/gearman",
     "license": "MIT",
     "authors": [
         {
-            "name": "Gabriel Bull",
-            "email": "me@gabrielbull.com"
+            "name": "Eric Bus",
+            "email": "software.support@websight.nl"
         }
     ],
     "require": {
