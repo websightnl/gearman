@@ -1,11 +1,10 @@
 Gearman
 =======
 
-[![Build Status](https://img.shields.io/travis/sinergi/gearman/master.svg?style=flat)](https://travis-ci.org/sinergi/gearman)
-[![Code Climate](https://codeclimate.com/github/sinergi/gearman/badges/gpa.svg)](https://codeclimate.com/github/sinergi/gearman)
-[![Latest Stable Version](http://img.shields.io/packagist/v/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
-[![Total Downloads](https://img.shields.io/packagist/dt/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
-[![License](https://img.shields.io/packagist/l/sinergi/gearman.svg?style=flat)](https://packagist.org/packages/sinergi/gearman)
+[![Build Status](https://img.shields.io/travis/websightnl/gearman/master.svg?style=flat)](https://travis-ci.org/websightnl/gearman)
+[![Latest Stable Version](http://img.shields.io/packagist/v/websightnl/gearman.svg?style=flat)](https://packagist.org/packages/websightnl/gearman)
+[![Total Downloads](https://img.shields.io/packagist/dt/websightnl/gearman.svg?style=flat)](https://packagist.org/packages/websightnl/gearman)
+[![License](https://img.shields.io/packagist/l/websightnl/gearman.svg?style=flat)](https://packagist.org/packages/websightnl/gearman)
 
 PHP library for dispatching, handling and managing Gearman Workers
 
@@ -37,7 +36,7 @@ It is recommended that you install the Gearman library [through composer](http:/
 ```json
 {
     "require": {
-       "sinergi/gearman": "dev-master"
+       "websightnl/gearman": "~1.0"
     }
 }
 ```
