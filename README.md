@@ -93,6 +93,12 @@ $config = new Config([
  * bool __auto_update__<br> 
    Use for __*development only*__, automatically updates workers before doing a job or task.
 
+ * string __pidFilename__<br> 
+   Change the filename of the created PID file (defaults to gearmanhandler.pid).  The file is always created in the system temp path.
+   
+ * string __lockFilename__<br> 
+   Change the filename of the created lock file (defaults to gearmanhandler.lock). The file is always created in the system temp path.
+   
 <a name="bootstrap"></a>
 ## Bootstrap
 
