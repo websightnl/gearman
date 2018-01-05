@@ -51,6 +51,16 @@ class Config implements Serializable
     private static $instance;
 
     /**
+     * @var string
+     */
+    private $pidFilename = 'gearmanhandler.pid';
+
+    /**
+     * @var string
+     */
+    private $lockFilename = 'gearmanhandler.lock';
+
+    /**
      * gets the instance via lazy initialization (created on first usage)
      *
      * @return self
@@ -117,6 +127,12 @@ class Config implements Serializable
                     case 'user':
                         $this->setUser($value);
                         break;
+                    case 'pidFilename':
+                        $this->setPidFilename($value);
+                        break;
+                    case 'lockFilename':
+                        $this->setLockFilename($value);
+                        break;
                 }
             }
         }
@@ -156,6 +172,12 @@ class Config implements Serializable
                 break;
             case 'user':
                 return $this->getUser();
+                break;
+            case 'pidFilename':
+                return $this->getPidFilename();
+                break;
+            case 'lockFilename':
+                return $this->getLockFilename();
                 break;
         }
         return null;
@@ -343,6 +365,42 @@ class Config implements Serializable
     {
         return $this->user;
     }
+    
+    /**
+     * @param string $filename
+     * @return $this
+     */
+    public function setPidFilename($filename)
+    {
+        $this->pidFilename = $filename;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPidFilename()
+    {
+        return $this->pidFilename;
+    }   
+    
+    /**
+     * @param string $filename
+     * @return $this
+     */
+    public function setLockFilename($filename)
+    {
+        $this->lockFilename = $filename;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLockFilename()
+    {
+        return $this->lockFilename;
+    }   
 
     /**
      * @return string
@@ -356,7 +414,9 @@ class Config implements Serializable
             'workerLifetime' => $this->getWorkerLifetime(),
             'autoUpdate' => $this->getAutoUpdate(),
             'user' => $this->getUser(),
-            'envVariables' => $this->getEnvVariables()
+            'envVariables' => $this->getEnvVariables(),
+            'pidFilename' => $this->getPidFilename(),
+            'lockFilename' => $this->getLockFilename(),
         ]);
     }
 
