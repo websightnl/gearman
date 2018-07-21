@@ -177,6 +177,7 @@ This is an example of a Supervisor configuration. Add it to your Supervisor conf
 ```
 [program:mygearman]
 command=php /path/to/vendor/bin/gearman start --daemon=false
+process_name=%(program_name)s-procnum-%(process_num)s
 numprocs=12
 autostart=true
 autorestart=true
