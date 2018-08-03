@@ -61,6 +61,11 @@ class Config implements Serializable
     private $lockFilename = 'gearmanhandler.lock';
 
     /**
+     * @var int timeout in milliseconds
+     */
+    private $loopTimeout = 10;
+
+    /**
      * gets the instance via lazy initialization (created on first usage)
      *
      * @return self
@@ -133,6 +138,9 @@ class Config implements Serializable
                     case 'lockFilename':
                         $this->setLockFilename($value);
                         break;
+                    case 'timeout':
+                        $this->setLoopTimeout($value);
+                        break;
                 }
             }
         }
@@ -178,6 +186,9 @@ class Config implements Serializable
                 break;
             case 'lockFilename':
                 return $this->getLockFilename();
+                break;
+            case 'timeout':
+                return $this->getTimeout();
                 break;
         }
         return null;
@@ -400,7 +411,25 @@ class Config implements Serializable
     public function getLockFilename()
     {
         return $this->lockFilename;
-    }   
+    }
+
+    /**
+     * @param string $filename
+     * @return $this
+     */
+    public function setLoopTimeout($loopTimeout)
+    {
+        $this->loopTimeout = $loopTimeout;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLoopTimeout()
+    {
+        return $this->loopTimeout;
+    }
 
     /**
      * @return string
@@ -417,6 +446,7 @@ class Config implements Serializable
             'envVariables' => $this->getEnvVariables(),
             'pidFilename' => $this->getPidFilename(),
             'lockFilename' => $this->getLockFilename(),
+            'loopTimeout' => $this->getLoopTimeout(),
         ]);
     }
 
