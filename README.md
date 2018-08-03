@@ -93,6 +93,15 @@ $config = new Config([
  * bool __auto_update__<br> 
    Use for __*development only*__, automatically updates workers before doing a job or task.
 
+ * string __pidFilename__<br> 
+   Change the filename of the created PID file (defaults to gearmanhandler.pid).  The file is always created in the system temp path.
+   
+ * string __lockFilename__<br> 
+   Change the filename of the created lock file (defaults to gearmanhandler.lock). The file is always created in the system temp path.
+   
+ * int __loopTimeout__<br> 
+   Change the time (in milliseconds) between pinging the Gearman server. Defaults to the low value of 10 milliseconds, for legacy reasons. **Change this value if you experience high load on your Gearman server!**
+   
 <a name="bootstrap"></a>
 ## Bootstrap
 

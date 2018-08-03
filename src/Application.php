@@ -295,7 +295,7 @@ class Application implements Serializable
     private function createLoop($restart = false)
     {
         $worker = $this->getWorker()->getWorker();
-        $worker->setTimeout(10);
+        $worker->setTimeout($this->getConfig()->getLoopTimeout());
 
         $callbacks = $this->getCallbacks();
 

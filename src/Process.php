@@ -5,7 +5,10 @@ use Psr\Log\LoggerInterface;
 
 class Process
 {
+    /* @deprecated Now uses strings from Config class */
     const PID_FILE = 'gearmanhandler.pid';
+
+    /* @deprecated Now uses from Config class */
     const LOCK_FILE = 'gearmanhandler.lock';
 
     /**
@@ -40,7 +43,7 @@ class Process
      */
     public function getPidFile()
     {
-        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . self::PID_FILE;
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . $this->config->getPidFilename();
     }
 
     /**
@@ -48,7 +51,7 @@ class Process
      */
     public function getLockFile()
     {
-        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . self::LOCK_FILE;
+        return sys_get_temp_dir() . DIRECTORY_SEPARATOR . $this->config->getLockFilename();
     }
 
     public function stop()
